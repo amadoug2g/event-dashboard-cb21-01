@@ -124,6 +124,10 @@ async function syncParticipants() {
 // Serve Let's Encrypt webroot challenge files (for cert renewal)
 app.use('/.well-known', express.static(path.join(__dirname, 'webroot/.well-known')));
 
+// Favicon + static assets
+app.get('/favicon.ico', (req, res) => res.sendFile(path.join(__dirname, 'favicon.ico')));
+app.get('/apple-touch-icon.png', (req, res) => res.sendFile(path.join(__dirname, 'apple-touch-icon.png')));
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'analyse-cb21.html'));
 });

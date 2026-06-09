@@ -144,12 +144,10 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
 <div class="hdr">
   <div class="hdr-left">
     <h1>Les Grandes Conversations &nbsp;·&nbsp; 11 juin 2026</h1>
-    <div class="sub">Tour CB21, La Défense &nbsp;·&nbsp; Listing WeezEvent 09/06 07h &nbsp;·&nbsp; RGPD : aucun e-mail</div>
+    <div class="sub">Tour CB21, La Défense &nbsp;·&nbsp; Mise à jour <span id="last-sync-badge">chargement…</span></div>
   </div>
   <div class="hdr-right">
-    <button class="btn" onclick="openModal('mo-weez')">⟳ Sync WeezEvent</button>
-    <button class="btn" onclick="exportCSV()">↓ CSV</button>
-    <button class="btn" onclick="copySummary()">⎘ Résumé</button>
+    <button class="btn" onclick="exportCSV()">↓ CSV participants</button>
   </div>
 </div>
 
@@ -157,7 +155,6 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
   <button class="nb active" data-v="dash" onclick="switchView('dash')">Vue d'ensemble</button>
   <button class="nb" data-v="part" onclick="switchView('part')">Participants <span id="nc-p"></span></button>
   <button class="nb" data-v="struct" onclick="switchView('struct')">Structures <span id="nc-s"></span></button>
-  <button class="nb" data-v="invit" onclick="switchView('invit')">Par organisation <span id="nc-i"></span></button>
 </div>
 
 <div class="main">
@@ -315,11 +312,8 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
 // CANALS
 // ═══════════════════════════════════════════════════════════════
 const CANALS = [
-  {id:'lespilotes',  label:'Les Pilotes',    abbr:'LP', bg:'#1c2b4a', fg:'#e85d2e'},
-  {id:'time2start',  label:'Time2Start',     abbr:'T2', bg:'#0d0d0d', fg:'#f4891f'},
-  {id:'descodeuses', label:'DesCodeuses',    abbr:'DC', bg:'#111',    fg:'#ffffff'},
-  {id:'covivio',     label:'Covivio / CB21', abbr:'CV', bg:'#2c5282', fg:'#e2e8f0'},
-  {id:'libre',       label:'Entrée libre',   abbr:'?',  bg:'#e2e8f0', fg:'#64748b'},
+  {id:'covivio', label:'Covivio / CB21', abbr:'CV', bg:'#2c5282', fg:'#e2e8f0'},
+  {id:'autre',   label:'Autre',          abbr:'?',  bg:'#64748b', fg:'#ffffff'},
 ];
 const UNASSIGNED = {id:'unassigned', label:'Non attribué', abbr:'—', bg:'transparent', fg:'#94a3b8'};
 const ALL_CANALS = [...CANALS, UNASSIGNED];
@@ -354,10 +348,7 @@ const ALIAS_SEED = [
 // Canal auto-rules: structure label → canal id
 // These are seeded defaults, user can edit via Structures tab
 const STRUCT_CANAL_RULES = {
-  "Les Pilotes":    "lespilotes",
-  "Time2Start":     "time2start",
-  "DesCodeuses":    "descodeuses",
-  "Covivio":        "covivio",
+  "Covivio": "covivio",
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -601,22 +592,28 @@ function boot(){
     ST.structures.get(sid).canalDefault=canalId;
   });
 
-  // Load attendees
-  RAW.forEach(r=>{
-    const sid=resolveStruct(r.s||'');
-    const stDef=ST.structures.get(sid)?.canalDefault||null;
-    ST.attendees.push({
-      id:'p'+(++_seq),
-      nom:r.n||'',prenom:r.p||'',
-      structureRaw:r.s||'',
-      structureCanonId:sid,
-      canal:stDef||'unassigned',
-      canalAuto:!!stDef,
-      origin:'import',
+  // In server mode, serverAutoSync does the initial fetch and render.
+  // Baked-in data is only used as fallback (file:// mode).
+  if(location.protocol==='file:'){
+    RAW.forEach(r=>{
+      const sid=resolveStruct(r.s||'');
+      const stDef=ST.structures.get(sid)?.canalDefault||null;
+      ST.attendees.push({
+        id:'p'+(++_seq),
+        nom:r.n||'',prenom:r.p||'',
+        structureRaw:r.s||'',
+        structureCanonId:sid,
+        canal:stDef||'autre',
+        canalAuto:!!stDef,
+        origin:'import',
+        dateInscription:'',
+      });
     });
-  });
-
-  render();
+    render();
+  } else {
+    // Show loading state while first fetch completes
+    document.getElementById('kpis').innerHTML='<div style="padding:20px;color:#94a3b8;font-size:13px">Chargement des données…</div>';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -653,8 +650,6 @@ function render(){
   document.getElementById('nc-p').textContent=`(${total})`;
   document.getElementById('nc-s').textContent=`(${ns})`;
   const cc=canalCounts();
-  const unassigned=cc.unassigned||0;
-  document.getElementById('nc-i').textContent=unassigned?`(${unassigned} ⚠)`:` (${total})`;
   if(ST.view==='dash')    renderDash();
   if(ST.view==='part')    renderP();
   if(ST.view==='struct')  renderS();
@@ -672,26 +667,27 @@ function renderDash(){
   const ns=[...ST.structures.values()].filter(s=>s.label!=='(sans structure)').length;
   const noS=ST.attendees.filter(p=>sLabel(p.structureCanonId)==='(sans structure)').length;
 
+  const covivioCount=cc.covivio||0;
   document.getElementById('kpis').innerHTML=`
     <div class="kpi">
       <div class="kpi-lbl">Inscrits</div>
       <div class="kpi-val">${total}</div>
-      <div class="kpi-sub">Listing 09/06 · 07h00</div>
+      <div class="kpi-sub" id="kpi-sync-sub">Mise à jour en cours…</div>
     </div>
     <div class="kpi">
       <div class="kpi-lbl">Structures</div>
       <div class="kpi-val">${ns}</div>
       <div class="kpi-sub">${noS} sans société</div>
     </div>
-    <div class="kpi ${pct>=80?'good':pct>=50?'':'warn'}">
-      <div class="kpi-lbl">Attribués</div>
-      <div class="kpi-val">${pct}%</div>
-      <div class="kpi-sub">${total-(cc.unassigned||0)} sur ${total}</div>
-    </div>
     <div class="kpi">
       <div class="kpi-lbl">Résidents CB21</div>
       <div class="kpi-val">${cb21Attendees().length}</div>
       <div class="kpi-sub">Identifiés parmi inscrits</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Covivio / CB21</div>
+      <div class="kpi-val">${covivioCount}</div>
+      <div class="kpi-sub">${total-covivioCount} hors tour</div>
     </div>`;
 
   // Canal chart
@@ -759,23 +755,20 @@ function renderP(){
   document.getElementById('tbl-p').innerHTML=`
     <table>
       <thead><tr>
-        <th><input type="checkbox" ${allSel?'checked':''} onchange="togAll(this.checked,${JSON.stringify(rows.map(r=>r.id))})"></th>
         ${th('nom','NOM')}${th('prenom','Prénom')}${th('structure','Structure')}
-        <th></th>
-        ${th('canal','Invité par')}
-        <th></th>
+        <th>CB21</th>
+        ${th('date','Inscription')}
       </tr></thead>
       <tbody>${rows.map(p=>{
         const cb=isCB21(p.structureCanonId);
         const sl=sLabel(p.structureCanonId);
+        const dateStr=p.dateInscription?new Date(p.dateInscription).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
         return`<tr>
-          <td><input type="checkbox" ${ST.sel.has(p.id)?'checked':''} onchange="togSel('${p.id}',this.checked)"></td>
           <td><strong>${p.nom}</strong></td>
           <td>${p.prenom}</td>
           <td>${sl==='(sans structure)'?'<span style="color:#94a3b8;font-style:italic">—</span>':sl}</td>
           <td>${cb?'<span class="badge badge-cb21" style="font-size:10px">CB21</span>':''}</td>
-          <td><div class="pill-row">${pillRowHtml(p.canal,p.id)}</div></td>
-          <td><button class="btn sm light" onclick="removeP('${p.id}')" style="padding:2px 7px;color:#94a3b8;border-color:#e2e8f0" title="Supprimer">×</button></td>
+          <td style="font-size:12px;color:#64748b">${dateStr}</td>
         </tr>`;
       }).join('')}</tbody>
     </table>
@@ -1105,13 +1098,16 @@ function importCSV(){
 
 // EXPORT CSV
 function exportCSV(){
-  const BOM='﻿';
-  const rows=[['NOM','Prénom','Structure (saisie)','Structure (canonique)','CB21','Invité par','Auto']];
-  ST.attendees.forEach(p=>rows.push([p.nom,p.prenom,p.structureRaw,sLabel(p.structureCanonId),isCB21(p.structureCanonId)?'Oui':'Non',CANAL_MAP[p.canal]?.label||p.canal,p.canalAuto?'Oui':'Non']));
+  const BOM='\uFEFF';
+  const rows=[['Prénom','Nom','Structure','Date d\'inscription']];
+  ST.attendees.forEach(p=>{
+    const dateStr=p.dateInscription?new Date(p.dateInscription).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+    rows.push([p.prenom,p.nom,p.structureRaw||sLabel(p.structureCanonId),dateStr]);
+  });
   const csv=BOM+rows.map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(';')).join('\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='participants-grandes-conversations-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.download='inscrits-grandes-conversations-'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
 }
 
@@ -1150,49 +1146,61 @@ function openAddP_exposed(){openAddP();}
 
 boot();
 
-// ── Auto-sync from server (when hosted via server.js) ─────────────────────
-// If the page is served by the Node server, /api/participants exists.
-// In that case we poll it every 5 min and merge new WeezEvent participants.
+// ── Auto-sync from server ──────────────────────────────────────────────────
 (function serverAutoSync(){
-  const POLL_MS = 5 * 60 * 1000; // 5 minutes
+  const POLL_MS = 60 * 1000; // 1 minute
+
+  function updateSyncBadge(lastSync){
+    const badge=document.getElementById('last-sync-badge');
+    const kpiSub=document.getElementById('kpi-sync-sub');
+    if(!lastSync) return;
+    const d=new Date(lastSync);
+    const diffMin=Math.round((Date.now()-d.getTime())/60000);
+    const label=diffMin<=1?'à l\'instant':`il y a ${diffMin} min`;
+    if(badge) badge.textContent=label;
+    if(kpiSub) kpiSub.textContent='Mis à jour '+label;
+  }
+
   function applyServerData(data){
     if(!data||!Array.isArray(data.participants)||!data.participants.length) return;
-    let added=0;
+
+    // Full replace — always use live server data
+    ST.attendees=[];
+
     data.participants.forEach(p=>{
-      // WeezEvent participant shape: p.first_name / p.last_name / p.owner / p.barcode
-      const nom=(p.last_name||p.nom||'').toUpperCase().trim();
-      const prenom=(p.first_name||p.prenom||'').trim();
-      const structure=(p.owner||p.organisation||p.structureRaw||'').trim();
+      const nom=(p.owner?.last_name||p.last_name||p.nom||'').toUpperCase().trim();
+      const prenom=(p.owner?.first_name||p.first_name||p.prenom||'').trim();
+      const structure=(p.owner?.custom_field||p.organisation||p.structureRaw||'').trim();
+      const dateInscription=p.create_date||'';
       if(!nom) return;
-      const exists=ST.attendees.some(a=>
-        a.nom.toUpperCase()===nom && a.prenom.toLowerCase()===prenom.toLowerCase()
-      );
-      if(!exists){
-        const sid=resolveStruct(structure);
-        const stDef=ST.structures.get(sid)?.canalDefault||null;
-        ST.attendees.push({
-          id:'p'+(++_seq),nom,prenom,
-          structureRaw:structure,structureCanonId:sid,
-          canal:stDef||'unassigned',canalAuto:!!stDef,origin:'weez',
-        });
-        added++;
-      }
+      const sid=resolveStruct(structure);
+      const isCovivioStruct=isCB21(sid);
+      const canal=isCovivioStruct?'covivio':(ST.structures.get(sid)?.canalDefault||'autre');
+      ST.attendees.push({
+        id:'p'+(++_seq),nom,prenom,
+        structureRaw:structure,structureCanonId:sid,
+        canal,canalAuto:true,origin:'weez',
+        dateInscription,
+      });
     });
-    if(added>0){render();console.log(`[autoSync] +${added} nouveaux participants`);}
-    // Update last-sync badge if element exists
-    const badge=document.getElementById('last-sync-badge');
-    if(badge&&data.lastSync) badge.textContent='Sync: '+new Date(data.lastSync).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+
+    window._lastSync=data.lastSync;
+    render();
+    updateSyncBadge(data.lastSync);
+    console.log(`[autoSync] ${ST.attendees.length} participants @ ${data.lastSync}`);
   }
+
   function poll(){
     fetch('/api/participants')
       .then(r=>r.ok?r.json():Promise.reject(r.status))
       .then(applyServerData)
-      .catch(()=>{}); // silently ignore when not on server
+      .catch(()=>{});
   }
-  // Only run if served from http/https (not file://)
+
   if(location.protocol!=='file:'){
-    poll();
+    poll(); // immediate first fetch — replaces baked-in data
     setInterval(poll, POLL_MS);
+    setInterval(()=>updateSyncBadge(window._lastSync), 30000); // refresh badge text
   }
 })();
 </script>

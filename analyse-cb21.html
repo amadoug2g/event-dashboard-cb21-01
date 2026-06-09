@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Les Grandes Conversations · 11 juin 2026</title>
+<style>
+:root{
+  --bg:#f4f6fa;--white:#fff;--border:#e2e8f0;--text:#1a202c;--muted:#64748b;
+  --accent:#3b82f6;--header:#0f172a;--cb21:#dc2626;
+  --lp-bg:#1c2b4a;--lp-fg:#e85d2e;
+  --t2-bg:#0d0d0d;--t2-fg:#f4891f;
+  --dc-bg:#111;--dc-fg:#ffffff;
+  --cv-bg:#2c5282;--cv-fg:#e2e8f0;
+  --li-bg:#e2e8f0;--li-fg:#64748b;
+  --pill:28px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--header);color:#f8fafc;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hdr-left h1{font-size:15px;font-weight:600}
+.hdr-left .sub{font-size:11px;color:#94a3b8;margin-top:2px}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.btn{padding:6px 13px;font-size:12px;font-weight:500;border-radius:6px;border:1px solid #334155;background:transparent;color:#f8fafc;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#1e293b}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:#2563eb}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn.light{background:var(--white);border-color:var(--border);color:var(--text)}
+.btn.light:hover{background:#f8fafc}
+
+/* NAV */
+.nav{background:var(--white);border-bottom:1px solid var(--border);display:flex;padding:0 20px}
+.nb{padding:10px 15px;font-size:13px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nb.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nb:hover{color:var(--text)}
+
+/* LAYOUT */
+.main{padding:20px;max-width:1200px;margin:0 auto}
+.view{display:none}
+.view.active{display:block}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
+.kpi-val{font-size:28px;font-weight:700;line-height:1.1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.kpi.good .kpi-val{color:#16a34a}
+.kpi.warn .kpi-val{color:#d97706}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px}
+.card-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.card-row .card{margin-bottom:0}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+
+/* BARS */
+.bar-item{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-label{width:130px;font-size:12px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.bar-track{flex:1;height:14px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s ease}
+.bar-cnt{width:30px;text-align:right;font-size:12px;font-weight:600;color:var(--muted)}
+
+/* LOGO PILLS — attribution UI */
+.pill-row{display:flex;gap:4px;align-items:center}
+.pill{width:var(--pill);height:var(--pill);border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:opacity .15s,transform .1s,box-shadow .15s;opacity:.2;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;line-height:1;letter-spacing:-.3px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;user-select:none}
+.pill:hover{opacity:.7;transform:scale(1.12)}
+.pill.active{opacity:1;box-shadow:0 0 0 2.5px #fff,0 0 0 4.5px currentColor;transform:scale(1.1)}
+.pill.lespilotes{background:var(--lp-bg);color:var(--lp-fg)}
+.pill.time2start{background:var(--t2-bg);color:var(--t2-fg)}
+.pill.descodeuses{background:var(--dc-bg);color:var(--dc-fg)}
+.pill.covivio{background:var(--cv-bg);color:var(--cv-fg)}
+.pill.libre{background:var(--li-bg);color:var(--li-fg)}
+
+/* Pill tooltip wrapper */
+.pill-wrap{position:relative}
+.pill-wrap .tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#1e293b;color:#f8fafc;font-size:10px;padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10}
+.pill-wrap:hover .tip{opacity:1}
+
+/* TABLE */
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.srch{flex:1;min-width:180px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;background:var(--white)}
+.srch:focus{border-color:var(--accent)}
+.fsel{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--white);cursor:pointer}
+table{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+thead{background:#f8fafc}
+th{padding:9px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--text)}
+td{padding:8px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+tr.expand-row td{background:#f8fafc;padding:8px 16px}
+
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:9px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-cb21{background:#fef2f2;color:var(--cb21);border:1px solid #fecaca}
+.badge-auto{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;font-size:10px}
+
+/* CANAL BADGE */
+.canal-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600}
+
+/* FLOATING ACTION BAR */
+.fab{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#f8fafc;padding:10px 18px;border-radius:24px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:50;transition:opacity .2s,transform .2s}
+.fab.hidden{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(12px)}
+.fab-pills{display:flex;gap:4px;--pill:24px}
+
+/* INVITATIONS VIEW */
+.canal-section{margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.canal-header{background:var(--white);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.canal-header:hover{background:#f8fafc}
+.canal-header-left{display:flex;align-items:center;gap:10px}
+.canal-count{font-size:12px;color:var(--muted);font-weight:500}
+.canal-body{border-top:1px solid var(--border)}
+.canal-body.collapsed{display:none}
+
+/* MODALS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:10px;padding:22px;width:480px;max-width:96vw;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:14px}
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
+.fi{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--white)}
+.fi:focus{outline:none;border-color:var(--accent)}
+.fa{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.info-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:10px 12px;font-size:12px;color:#0369a1;line-height:1.6;margin-bottom:12px}
+.warn-box{background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:10px 12px;font-size:12px;color:#c2410c;line-height:1.6}
+
+/* PROGRESS BAR */
+.progress-ring{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.progress-label{position:absolute;font-size:13px;font-weight:700}
+
+/* EMPTY */
+.empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+
+/* RESPONSIVE */
+@media(max-width:700px){.kpis{grid-template-columns:1fr 1fr}.card-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <h1>Les Grandes Conversations &nbsp;·&nbsp; 11 juin 2026</h1>
+    <div class="sub">Tour CB21, La Défense &nbsp;·&nbsp; Listing WeezEvent 09/06 07h &nbsp;·&nbsp; RGPD : aucun e-mail</div>
+  </div>
+  <div class="hdr-right">
+    <button class="btn" onclick="openModal('mo-weez')">⟳ Sync WeezEvent</button>
+    <button class="btn" onclick="exportCSV()">↓ CSV</button>
+    <button class="btn" onclick="copySummary()">⎘ Résumé</button>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nb active" data-v="dash" onclick="switchView('dash')">Vue d'ensemble</button>
+  <button class="nb" data-v="part" onclick="switchView('part')">Participants <span id="nc-p"></span></button>
+  <button class="nb" data-v="struct" onclick="switchView('struct')">Structures <span id="nc-s"></span></button>
+  <button class="nb" data-v="invit" onclick="switchView('invit')">Par organisation <span id="nc-i"></span></button>
+</div>
+
+<div class="main">
+
+<!-- ═══════════════════ DASHBOARD ═══════════════════ -->
+<div class="view active" id="view-dash">
+  <div class="kpis" id="kpis"></div>
+  <div class="card-row">
+    <div class="card">
+      <div class="card-title">Participants par organisation invitante</div>
+      <div id="chart-canal"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top structures représentées</div>
+      <div id="chart-structs"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Résidents Tour CB21 identifiés parmi les inscrits</div>
+    <div id="cb21-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PARTICIPANTS ═══════════════════ -->
+<div class="view" id="view-part">
+  <div class="toolbar">
+    <input class="srch" id="sp" placeholder="Nom, prénom, structure…" oninput="renderP()">
+    <select class="fsel" id="fp-canal" onchange="renderP()">
+      <option value="all">Toutes organisations</option>
+      <option value="unassigned">Non attribué</option>
+      <option value="lespilotes">Les Pilotes</option>
+      <option value="time2start">Time2Start</option>
+      <option value="descodeuses">DesCodeuses</option>
+      <option value="covivio">Covivio / CB21</option>
+      <option value="libre">Entrée libre</option>
+    </select>
+    <select class="fsel" id="fp-cb21" onchange="renderP()">
+      <option value="all">Tous</option>
+      <option value="yes">Résidents CB21</option>
+    </select>
+    <button class="btn light" onclick="openAddP()">+ Participant</button>
+  </div>
+  <div id="tbl-p"></div>
+</div>
+
+<!-- ═══════════════════ STRUCTURES ═══════════════════ -->
+<div class="view" id="view-struct">
+  <div class="toolbar">
+    <input class="srch" id="ss" placeholder="Rechercher une structure…" oninput="renderS()">
+    <select class="fsel" id="fs-cb21" onchange="renderS()">
+      <option value="all">Toutes</option>
+      <option value="yes">CB21 uniquement</option>
+    </select>
+    <button class="btn light" onclick="openAddS()">+ Structure</button>
+    <button class="btn light" onclick="openMerge()">Fusionner…</button>
+  </div>
+  <div id="tbl-s"></div>
+</div>
+
+<!-- ═══════════════════ PAR ORGANISATION ═══════════════════ -->
+<div class="view" id="view-invit">
+  <div class="toolbar">
+    <input class="srch" id="si" placeholder="Rechercher…" oninput="renderI()">
+    <label style="font-size:13px;display:flex;align-items:center;gap:6px;color:var(--muted);cursor:pointer">
+      <input type="checkbox" id="fi-unassigned" onchange="renderI()"> Afficher seulement non attribués
+    </label>
+  </div>
+  <div id="inv-sections"></div>
+</div>
+
+</div><!-- .main -->
+
+<!-- FLOATING ATTRIBUTION BAR -->
+<div class="fab hidden" id="fab">
+  <span id="fab-cnt"></span> sélectionné(s) → attribuer à :
+  <div class="fab-pills" id="fab-pills"></div>
+  <button class="btn sm" style="background:#334155;border-color:#475569" onclick="clearSel()">✕</button>
+</div>
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+
+<!-- ADD PARTICIPANT -->
+<div class="overlay" id="mo-addp">
+  <div class="modal">
+    <h3>Ajouter un participant</h3>
+    <div class="fg"><label class="fl">Nom</label><input class="fi" id="ap-n" placeholder="NOM"></div>
+    <div class="fg"><label class="fl">Prénom</label><input class="fi" id="ap-p" placeholder="Prénom"></div>
+    <div class="fg"><label class="fl">Structure / Organisation</label><input class="fi" id="ap-s"></div>
+    <div class="fg"><label class="fl">Invité par</label>
+      <div class="pill-row" style="--pill:36px;margin-top:6px" id="ap-pills"></div>
+      <input type="hidden" id="ap-canal" value="unassigned">
+    </div>
+    <div class="fa"><button class="btn light" onclick="closeModal('mo-addp')">Annuler</button><button class="btn primary" onclick="confirmAddP()">Ajouter</button></div>
+  </div>
+</div>
+
+<!-- ADD STRUCTURE -->
+<div class="overlay" id="mo-adds">
+  <div class="modal">
+    <h3>Ajouter une structure</h3>
+    <div class="fg"><label class="fl">Nom</label><input class="fi" id="as-n"></div>
+    <div class="fg"><label class="fl">Organisation invitante par défaut</label>
+      <div class="pill-row" style="--pill:36px;margin-top:6px" id="as-pills"></div>
+      <input type="hidden" id="as-canal" value="unassigned">
+    </div>
+    <div class="fg" style="display:flex;align-items:center;gap:8px;margin-top:4px">
+      <input type="checkbox" id="as-cb21">
+      <label for="as-cb21" style="font-size:13px;cursor:pointer">Résident CB21</label>
+    </div>
+    <div class="fa"><button class="btn light" onclick="closeModal('mo-adds')">Annuler</button><button class="btn primary" onclick="confirmAddS()">Ajouter</button></div>
+  </div>
+</div>
+
+<!-- MERGE -->
+<div class="overlay" id="mo-merge">
+  <div class="modal">
+    <h3>Fusionner deux structures</h3>
+    <p style="font-size:12px;color:#64748b;margin-bottom:12px">Les participants de la structure absorbée seront rattachés à la structure canonique.</p>
+    <div class="fg"><label class="fl">Conserver</label><select class="fi" id="mg-into"></select></div>
+    <div class="fg"><label class="fl">Absorber (supprimée)</label><select class="fi" id="mg-from"></select></div>
+    <div class="fa"><button class="btn light" onclick="closeModal('mo-merge')">Annuler</button><button class="btn primary" onclick="confirmMerge()">Fusionner</button></div>
+  </div>
+</div>
+
+<!-- WEEZEVENT SYNC -->
+<div class="overlay" id="mo-weez">
+  <div class="modal">
+    <h3>⟳ Synchronisation WeezEvent</h3>
+    <div class="info-box">
+      L'API WeezEvent est disponible. Pour l'utiliser :<br>
+      Back-office WeezEvent → Outils → <strong>Clé API</strong> → copier la clé et le token.
+    </div>
+    <div class="fg"><label class="fl">API Key</label><input class="fi" id="wz-key" placeholder="Votre api_key WeezEvent"></div>
+    <div class="fg"><label class="fl">Access Token</label><input class="fi" id="wz-token" placeholder="Votre access_token"></div>
+    <div class="fg"><label class="fl">ID de l'événement</label><input class="fi" id="wz-event" placeholder="Ex: 123456"></div>
+    <div class="warn-box" style="margin-bottom:12px">
+      <strong>Remarque CORS :</strong> les navigateurs bloquent souvent les appels API directs. Si ça ne fonctionne pas, utilise l'import CSV ci-dessous.
+    </div>
+    <div class="card-title" style="margin-bottom:8px;margin-top:4px">OU — Importer un export CSV WeezEvent</div>
+    <div class="fg">
+      <input type="file" id="wz-csv" accept=".csv" style="font-size:13px">
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Format attendu : colonnes NOM / Prénom / Société séparées par ; ou ,</div>
+    </div>
+    <div id="wz-status" style="font-size:12px;margin-top:8px"></div>
+    <div class="fa">
+      <button class="btn light" onclick="closeModal('mo-weez')">Fermer</button>
+      <button class="btn light" onclick="importCSV()">Importer CSV</button>
+      <button class="btn primary" onclick="syncWeez()">Synchroniser API</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CANALS
+// ═══════════════════════════════════════════════════════════════
+const CANALS = [
+  {id:'lespilotes',  label:'Les Pilotes',    abbr:'LP', bg:'#1c2b4a', fg:'#e85d2e'},
+  {id:'time2start',  label:'Time2Start',     abbr:'T2', bg:'#0d0d0d', fg:'#f4891f'},
+  {id:'descodeuses', label:'DesCodeuses',    abbr:'DC', bg:'#111',    fg:'#ffffff'},
+  {id:'covivio',     label:'Covivio / CB21', abbr:'CV', bg:'#2c5282', fg:'#e2e8f0'},
+  {id:'libre',       label:'Entrée libre',   abbr:'?',  bg:'#e2e8f0', fg:'#64748b'},
+];
+const UNASSIGNED = {id:'unassigned', label:'Non attribué', abbr:'—', bg:'transparent', fg:'#94a3b8'};
+const ALL_CANALS = [...CANALS, UNASSIGNED];
+const CANAL_MAP = Object.fromEntries(ALL_CANALS.map(c=>[c.id,c]));
+
+// No external logos — initials only (CSS handles colors via .pill.{id} classes)
+
+// ═══════════════════════════════════════════════════════════════
+// CB21 COMPANIES
+// ═══════════════════════════════════════════════════════════════
+const RAW_CB21 = [
+  "Covivio","Informatica France","BRS shipbrokers since 1856","Assurfin Groupe",
+  "Otc Flow France","ACT-ON Group","SK Functional polymer","Sateba","Pharma Blue",
+  "Cencora Pharmalex","Verizon","ALTUGLAS Groupe Trinseo","Evernex","ADEME",
+  "SIEMENS (France)","Siemens Financial Services","SII","PTV Logistics",
+  "TAKEDA France SAS","Haagen Dazs"
+];
+
+// ═══════════════════════════════════════════════════════════════
+// ALIAS SEEDS
+// ═══════════════════════════════════════════════════════════════
+const ALIAS_SEED = [
+  {canon:"DesCodeuses",            variants:["DesCodeuses","Descodeuses","des codeuses","descodeuses"]},
+  {canon:"Time2Start",             variants:["Time2Start","T2S","Time 2start","time2start","Time 2Start","Time2start"]},
+  {canon:"Les Pilotes",            variants:["Les Pilotes","les pilotes","Pilotes","pilotes"]},
+  {canon:"Lycée Jacques Feyder",   variants:["Lycée Jacques Feyder","Lycee Jacques Feyder","lycee jacque feyder","Jacques Feyder","Lycee jacque feyder"]},
+  {canon:"Groupe BNP Paribas",     variants:["BNP Paribas","BNP PARIBAS","Fondation BNPP","Fondation BNP Paribas"]},
+  {canon:"BRS shipbrokers since 1856", variants:["BRS","Barry Rogliano Salles","BARRY ROGLIANO SALLES","BRS shipbrokers"]},
+  {canon:"SIEMENS (France)",       variants:["Siemens","SIEMENS","Siemens France"]},
+];
+
+// Canal auto-rules: structure label → canal id
+// These are seeded defaults, user can edit via Structures tab
+const STRUCT_CANAL_RULES = {
+  "Les Pilotes":    "lespilotes",
+  "Time2Start":     "time2start",
+  "DesCodeuses":    "descodeuses",
+  "Covivio":        "covivio",
+};
+
+// ═══════════════════════════════════════════════════════════════
+// RAW ATTENDEES
+// ═══════════════════════════════════════════════════════════════
+const RAW = [
+  {n:'MOBAREK',p:'aksel',s:'Lycee'},
+  {n:'DAMBELE',p:'Noha',s:'Lasalle Saint denis'},
+  {n:'LAHMAR',p:'Sonia',s:'Les secrets de Loly'},
+  {n:'BRAMAUD GRATTAU',p:'philippe',s:'pbramaudconseil'},
+  {n:'WAGUÉ',p:'Bakary',s:'Jacques Feyder'},
+  {n:'IBRAHIM OTHMAN',p:'Mazen',s:'École'},
+  {n:'IBRAHIM OTHMAN',p:'Mazen',s:'École'},
+  {n:'ENCADA MENDES',p:'João',s:'Lycée jacque feyder'},
+  {n:'KABA',p:'Mamadou',s:'Lycee Jacques Feyder'},
+  {n:'TAHRIOUI',p:'sanaa',s:'lycée fernand nadia léger'},
+  {n:'ABDOU',p:'Mchinda',s:'Les Pilotes'},
+  {n:'BOUJENANE',p:'Mohamed',s:'Lycée polyvalent Fernand Nadia Leger'},
+  {n:'BLAISE',p:'Carennethie',s:'Louise Michel'},
+  {n:'EDDAFER',p:'Chahineze',s:'Van Gogh'},
+  {n:'FREDUAH',p:'Junior',s:'Lycée privé Vafc'},
+  {n:'EHOLIE',p:'Koumanley',s:'Lycée Van Gogh'},
+  {n:'APPRIOU',p:'Lucie',s:'SGAE'},
+  {n:'DIOUF',p:'Sokhna Diarra',s:'Women in tech senegal'},
+  {n:'ZERROUKI',p:'Asmaa',s:'Upec'},
+  {n:'BOUCHAMA',p:'Hajar',s:'Upec'},
+  {n:'SEDDIK',p:'Emina',s:'Université de médecine Jules Vernes'},
+  {n:'MOURI',p:'Assia',s:'Sterimed'},
+  {n:'SY',p:'Rouguy',s:'Emlv'},
+  {n:'DRAMÉ',p:'Fatou',s:'Emlv'},
+  {n:'PRESLES',p:'Nejma',s:'Autoentrepreuneur'},
+  {n:'IJIOUI',p:'Laïla',s:'UPEC AEI'},
+  {n:'CHANG',p:'peihsin',s:'Descodeuses'},
+  {n:'KOITA',p:'Fatoumata',s:'Étudiante'},
+  {n:'HASAN',p:'Chanize',s:'Carecrutement'},
+  {n:'NABAGA BINZOULI',p:'Germaine Ségolène',s:'Iseam'},
+  {n:'TASSOUBI',p:'neda',s:'Jeantet'},
+  {n:'ATARSIA',p:'Chiraze',s:'CARETECH WOMEN'},
+  {n:'DR NAFII',p:'Mohamed',s:'Emco'},
+  {n:'ZOUITEN',p:'Selim',s:'Time2start'},
+  {n:'GHAMBA',p:'Darline',s:'Invitée'},
+  {n:'AMADOU',p:'Hawwa',s:'DCF'},
+  {n:'BANOR',p:'Mariyame',s:'Dynamik Conseil & Formation'},
+  {n:'TIRARD',p:'FRANCK',s:'BARRY ROGLIANO SALLES'},
+  {n:'PIERRAT',p:'Manon',s:'Ferli'},
+  {n:'CHOURI',p:'Samya',s:'BRS'},
+  {n:'GASTON',p:'Cécile',s:'Pôle Léonard de Vinci'},
+  {n:'GHALEB',p:'Afeida',s:'AGT Conseil'},
+  {n:'SAHRAOUI',p:'Nidhal',s:'Les Pilotes'},
+  {n:'BRO',p:'Orlane',s:'Lycée Elisa Lemonnier Paris 12'},
+  {n:'NKANZA',p:'Cathy',s:'SKAA'},
+  {n:'VIGNES',p:'Miriame',s:'Indépendant'},
+  {n:'DUPONT',p:'Ariane',s:'Google'},
+  {n:'FORTÉ',p:'Ella',s:'Praxedo'},
+  {n:'MISSIAMENOU',p:'NICOLE',s:'WPSI Consulting Group SAS'},
+  {n:'SENNI',p:'Salma',s:'École'},
+  {n:'ZBAIRI',p:'Nesrine',s:'Les pilotes'},
+  {n:'AK',p:'Ilayda',s:'Les Pilotes'},
+  {n:'MEDJABRA',p:'Kamel',s:"L'Oréal Groupe"},
+  {n:'SONG',p:'Dara',s:'École'},
+  {n:'HADDOUCHE',p:'Omaima',s:'Accompagnateur'},
+  {n:'LOUSSALA',p:'Marcelyne',s:'Social 3.0'},
+  {n:'TOUCHAL',p:'Samira',s:'NA'},
+  {n:'ADEDIMEJI',p:'Tosin',s:'YEP TRAINING'},
+  {n:'HACHEMIN',p:'Lionel',s:'IFAW'},
+  {n:'GOUGOU',p:'Damien',s:'ENGIE'},
+  {n:'HALPERIN',p:'Jacques',s:"Fondation la France s'engage"},
+  {n:'SANTANA',p:'Alejandra',s:'Sciences Po Éducative Éducation'},
+  {n:'MANIKON',p:'Sharron',s:'ShaMan solutions'},
+  {n:'THIAM',p:'Marietou',s:'Sans emploi'},
+  {n:'BAGAYOKO',p:'Amynata',s:'Myna&co.'},
+  {n:'LAHRACH',p:'Tarik',s:'Association'},
+  {n:'FOFANA',p:'Fatoumata',s:'High Level Incubator'},
+  {n:'AISSAOUI',p:'Sofiane',s:'Lycée Louise Michel'},
+  {n:'CHORFI',p:'Nasrine',s:'Qiiro'},
+  {n:'THIAM',p:'Hassanatou',s:'BNP Paribas'},
+  {n:'BOUBTANE',p:'Sarah',s:'Aghilas Quantec'},
+  {n:'JABOUR',p:'Abou-Bakr',s:'UPN'},
+  {n:'MARJANE',p:'Hassna',s:'Université Paris Dauphine PSL'},
+  {n:'GUESSOUS',p:'Hasnaa',s:'Independante'},
+  {n:'IFEKOYA',p:'Arinola',s:'Association staypositive'},
+  {n:'CALÇADO',p:'Thamara',s:'Siemens'},
+  {n:'SAINCAIZE',p:'Guillaume',s:'Groupe Arverne'},
+  {n:'CARDONA',p:'Grégory',s:'Sij'},
+  {n:'CHIRON',p:'Cécile',s:'STEELSERIES FRANCE'},
+  {n:'PHILIPPE',p:'Sylvie',s:'Indépendante'},
+  {n:'SYLLA',p:'Halimatou',s:'Cesi'},
+  {n:'FABRE',p:'charlotte',s:'Worldline Corporate Foundation'},
+  {n:'DONNAT',p:'Audrey',s:'HASHTAG INVEST'},
+  {n:'ROMANO',p:'Stephanie',s:'CMB'},
+  {n:'MATYCHAK',p:'Tatiana',s:'ALSTOM'},
+  {n:'OUTEMSAA',p:'Salah',s:'Soussitech'},
+  {n:'NAVILYS',p:'Priscilia',s:'IDE'},
+  {n:'FAHSI',p:'Lina',s:'REC'},
+  {n:'ABOUKRAT',p:'Pierre',s:'Pierreaboukrat.com'},
+  {n:'RAMZI',p:'Aïmane',s:'Louis Michel'},
+  {n:'MOULAI',p:'Nacim',s:'Les pilotes'},
+  {n:'OHOU',p:'Elie-Serge',s:'Pilotes'},
+  {n:'ACHIBA',p:'Fouad',s:"Ministère de l'Europe et des affaires étrangères"},
+  {n:'OUTEMSAA VOLAMAMY',p:'Coreichia',s:'Time 2start'},
+  {n:'GERMANY',p:'Joshua',s:'Clypse | Zephir'},
+  {n:'OUMOUSS',p:'Hicham',s:'AMNEZYA'},
+  {n:'SUMBULA KOTSHI',p:'Joachim',s:'Afrikick'},
+  {n:'SHABANI',p:'Christ',s:'Les pilotes'},
+  {n:'KOUAME',p:'Amani Aurélia Roxane',s:'les pilotes'},
+  {n:'ABOUDOU',p:'Dayana',s:''},
+  {n:'MENDY',p:'Alliya',s:''},
+  {n:'MARZOUGUI',p:'Omar',s:''},
+  {n:'TOURE',p:'Habibata',s:''},
+  {n:'GIRARD',p:'Julie',s:'Iconic. coaching business'},
+  {n:'SAMBE',p:'Cheikh',s:''},
+  {n:'LUKUNKU',p:'Sarah',s:''},
+  {n:'CORNILLEAU',p:'David',s:''},
+  {n:'ZELANY',p:'Nihma',s:''},
+  {n:'NURY',p:'Marguerite',s:''},
+  {n:'LEMUSIER',p:'Thea',s:''},
+  {n:'PY',p:'Josephine',s:''},
+  {n:'SIBAI',p:'Anna',s:''},
+  {n:'ABOULGHAZAL',p:'Miriam',s:'CY Cergy université'},
+  {n:'GUEROUAOU',p:'Nadia',s:''},
+  {n:'GRADIN',p:'Carlotta',s:''},
+  {n:'ESSABAK',p:'Karima',s:''},
+  {n:'CAMPOS',p:'Eric',s:''},
+  {n:'LAFFETER',p:'Sabine',s:'BPCE'},
+  {n:'SPATOLA',p:'Nicolas',s:'Artimon'},
+  {n:'BOULHILA',p:'kheira',s:'Descodeuses'},
+  {n:'BEN-HAMZA',p:'Fatène',s:'Generation France'},
+  {n:'CHAUDHRY',p:'Leila',s:'LC Consulting'},
+  {n:'YVERT',p:'Hélène',s:'Ucanss'},
+  {n:'BENFEDDA',p:'Dalila',s:'Conseil départemental de Seine-Saint-Denis'},
+  {n:'SAKHO',p:'Tiguide',s:'Kéthiouraye'},
+  {n:'BONGO',p:'Theo',s:'Ebg Impact'},
+  {n:'DIABY',p:'N diabou',s:'T2S'},
+  {n:'ASSEDO',p:'Philippe',s:'Fondation BNPP'},
+  {n:'PEREZ IBANEZ',p:'Nadia',s:'Aqada'},
+  {n:'MALLE',p:'Mamadou',s:'Organisation'},
+  {n:'AMEGBO',p:'Akouvi',s:'Boost ton toi'},
+  {n:'EZZOUAK INGRAIN',p:'Maryam',s:'LINKING THERAPISTS'},
+  {n:'BARADJI',p:'Djeneba',s:'Anna style'},
+  {n:'LEMARIÉ',p:'Fabienne',s:'BNP PARIBAS'},
+  {n:'DOUMBIA',p:'Fatou',s:'Les secrets de Mami'},
+  {n:'GOMEZ HIERET',p:'Catherine',s:'CGH Conseil'},
+  {n:'COQUEREAU',p:'Philippe',s:'Fondation RSM France'},
+  {n:'KETFI',p:'Widad',s:'CMN'},
+  {n:'CHENAFA',p:'Soufiane',s:'CMN'},
+  {n:'T',p:'Ayoub',s:''},
+  {n:'BADACHE',p:'Sihem',s:''},
+  {n:'BESAMBA',p:'Gloria',s:''},
+  {n:'TA',p:'Marie-Claire',s:''},
+  {n:'SEDDIKI',p:'Yanis',s:''},
+  {n:'DANTE',p:'Charl',s:''},
+  {n:'MAARAF',p:'Samara',s:''},
+  {n:'BECHACHE',p:'Kaoutar',s:''},
+  {n:'FRECHET',p:'Louis',s:''},
+  {n:'BARSALI',p:'Nora',s:''},
+  {n:'VERNIERE',p:'Fabrice',s:''},
+  {n:'LABARTHE',p:'Isabelle',s:''},
+  {n:'DUMOUILLA',p:'Auguste',s:''},
+  {n:'DORIN',p:'Julie',s:''},
+  {n:'HAMOU',p:'Nadia',s:''},
+  {n:'CAMARA',p:'Tombe',s:''},
+  {n:'MARJANE',p:'Hassna',s:''},
+  {n:'ZELANY',p:'Nihma',s:''},
+  {n:'SAKK',p:'Mamadou',s:''},
+  {n:'NKOUKA',p:'ARLETTE',s:''},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let _seq=0;
+const ST={
+  attendees:[],
+  structures:new Map(),
+  aliasIdx:new Map(),
+  structCanalRules:new Map(), // structId → canalId
+  view:'dash',
+  sortK:'nom',sortD:'asc',
+  sel:new Set(),
+  expandedStructs:new Set(),
+  expandedCanals:new Set(ALL_CANALS.map(c=>c.id)),
+};
+
+// ═══════════════════════════════════════════════════════════════
+// NORMALIZATION
+// ═══════════════════════════════════════════════════════════════
+function norm(s){
+  if(!s) return '';
+  return s.normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .toLowerCase()
+    .replace(/[''`.,\-]/g,' ')
+    .replace(/\b(groupe|group|sa|sas|sarl|fondation|the|france|les|de|du|la|le|l)\b/g,' ')
+    .replace(/&/g,' et ')
+    .replace(/[^a-z0-9]+/g,' ')
+    .trim().replace(/\s+/g,' ');
+}
+function slug(s){return norm(s).replace(/\s+/g,'-').substring(0,36)+'-'+(++_seq);}
+
+// ═══════════════════════════════════════════════════════════════
+// STRUCTURE REGISTRY
+// ═══════════════════════════════════════════════════════════════
+function mkStruct(label){return{id:'s'+slug(label),label:label.trim(),isCB21:false,aliases:[],canalDefault:null};}
+
+function resolveStruct(raw){
+  const r=(raw||'').trim()||'(sans structure)';
+  const n=norm(r);
+  if(ST.aliasIdx.has(n)) return ST.aliasIdx.get(n);
+  for(const[id,st]of ST.structures){if(norm(st.label)===n){ST.aliasIdx.set(n,id);return id;}}
+  const st=mkStruct(r);
+  ST.structures.set(st.id,st);
+  ST.aliasIdx.set(n,st.id);
+  return st.id;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════
+function boot(){
+  // Seed CB21
+  RAW_CB21.forEach(name=>{const id=resolveStruct(name);ST.structures.get(id).isCB21=true;});
+
+  // Seed alias
+  ALIAS_SEED.forEach(({canon,variants})=>{
+    const cid=resolveStruct(canon);
+    variants.forEach(v=>{
+      const n=norm(v);
+      const old=ST.aliasIdx.get(n);
+      if(old&&old!==cid){
+        const oldSt=ST.structures.get(old);
+        if(oldSt){oldSt.aliases.forEach(a=>{if(!ST.structures.get(cid).aliases.includes(a))ST.structures.get(cid).aliases.push(a);});ST.structures.delete(old);}
+      }
+      ST.aliasIdx.set(n,cid);
+      const st=ST.structures.get(cid);
+      if(!st.aliases.includes(v))st.aliases.push(v);
+    });
+  });
+
+  // Seed canal rules
+  Object.entries(STRUCT_CANAL_RULES).forEach(([sName,canalId])=>{
+    const sid=resolveStruct(sName);
+    ST.structures.get(sid).canalDefault=canalId;
+  });
+
+  // Load attendees
+  RAW.forEach(r=>{
+    const sid=resolveStruct(r.s||'');
+    const stDef=ST.structures.get(sid)?.canalDefault||null;
+    ST.attendees.push({
+      id:'p'+(++_seq),
+      nom:r.n||'',prenom:r.p||'',
+      structureRaw:r.s||'',
+      structureCanonId:sid,
+      canal:stDef||'unassigned',
+      canalAuto:!!stDef,
+      origin:'import',
+    });
+  });
+
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+const sLabel=id=>ST.structures.get(id)?.label||id;
+const isCB21=id=>ST.structures.get(id)?.isCB21||false;
+function structCounts(){const m=new Map();ST.attendees.forEach(p=>m.set(p.structureCanonId,(m.get(p.structureCanonId)||0)+1));return m;}
+function canalCounts(){const c=Object.fromEntries(ALL_CANALS.map(a=>[a.id,0]));ST.attendees.forEach(p=>{c[p.canal]=(c[p.canal]||0)+1;});return c;}
+function cb21Attendees(){return ST.attendees.filter(p=>isCB21(p.structureCanonId));}
+function pctAttrib(){const a=ST.attendees.filter(p=>p.canal!=='unassigned').length;return ST.attendees.length?Math.round(a/ST.attendees.length*100):0;}
+
+// ═══════════════════════════════════════════════════════════════
+// LOGO PILL HTML
+// ═══════════════════════════════════════════════════════════════
+function pillRowHtml(activeCanalId, pid, size=28){
+  return CANALS.map(c=>`<div class="pill-wrap"><div class="pill ${c.id}${activeCanalId===c.id?' active':''}" style="--pill:${size}px" onclick="setCanal('${pid}','${c.id}')">${c.abbr}</div><div class="tip">${c.label}</div></div>`).join('');
+}
+
+// Canal badge
+function canalBadge(canalId, isAuto=false){
+  const c=CANAL_MAP[canalId]||UNASSIGNED;
+  if(canalId==='unassigned') return `<span style="font-size:11px;color:#94a3b8;font-style:italic">—</span>`;
+  const auto=isAuto?` <span class="badge badge-auto">auto</span>`:'';
+  return `<span class="canal-badge" style="background:${c.bg}22;color:${c.bg==='#e2e8f0'?c.fg:c.fg};border:1px solid ${c.bg}44"><span style="width:12px;height:12px;border-radius:50%;background:${c.bg};display:inline-block;flex-shrink:0"></span>${c.label}</span>${auto}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER MASTER
+// ═══════════════════════════════════════════════════════════════
+function render(){
+  const total=ST.attendees.length;
+  const ns=[...ST.structures.values()].filter(s=>s.label!=='(sans structure)').length;
+  document.getElementById('nc-p').textContent=`(${total})`;
+  document.getElementById('nc-s').textContent=`(${ns})`;
+  const cc=canalCounts();
+  const unassigned=cc.unassigned||0;
+  document.getElementById('nc-i').textContent=unassigned?`(${unassigned} ⚠)`:` (${total})`;
+  if(ST.view==='dash')    renderDash();
+  if(ST.view==='part')    renderP();
+  if(ST.view==='struct')  renderS();
+  if(ST.view==='invit')   renderI();
+  renderFAB();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+function renderDash(){
+  const total=ST.attendees.length;
+  const cc=canalCounts();
+  const pct=pctAttrib();
+  const ns=[...ST.structures.values()].filter(s=>s.label!=='(sans structure)').length;
+  const noS=ST.attendees.filter(p=>sLabel(p.structureCanonId)==='(sans structure)').length;
+
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi">
+      <div class="kpi-lbl">Inscrits</div>
+      <div class="kpi-val">${total}</div>
+      <div class="kpi-sub">Listing 09/06 · 07h00</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Structures</div>
+      <div class="kpi-val">${ns}</div>
+      <div class="kpi-sub">${noS} sans société</div>
+    </div>
+    <div class="kpi ${pct>=80?'good':pct>=50?'':'warn'}">
+      <div class="kpi-lbl">Attribués</div>
+      <div class="kpi-val">${pct}%</div>
+      <div class="kpi-sub">${total-(cc.unassigned||0)} sur ${total}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Résidents CB21</div>
+      <div class="kpi-val">${cb21Attendees().length}</div>
+      <div class="kpi-sub">Identifiés parmi inscrits</div>
+    </div>`;
+
+  // Canal chart
+  const maxC=Math.max(...CANALS.map(c=>cc[c.id]||0),1);
+  document.getElementById('chart-canal').innerHTML=CANALS.map(c=>`
+    <div class="bar-item">
+      <div class="bar-label"><div class="pill ${c.id}" style="--pill:16px;opacity:1;flex-shrink:0;font-size:7px">${c.abbr}</div><span>${c.label}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(((cc[c.id]||0)/maxC)*100)}%;background:${c.bg}"></div></div>
+      <div class="bar-cnt">${cc[c.id]||0}</div>
+    </div>`).join('')
+    +`<div class="bar-item" style="margin-top:8px;border-top:1px solid #f1f5f9;padding-top:8px">
+      <div class="bar-label" style="color:#94a3b8;font-style:italic">Non attribué</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(((cc.unassigned||0)/total)*100)}%;background:#e2e8f0"></div></div>
+      <div class="bar-cnt" style="color:#94a3b8">${cc.unassigned||0}</div>
+    </div>`;
+
+  // Struct chart
+  const cm=structCounts();
+  const top=[...cm.entries()].filter(([id])=>sLabel(id)!=='(sans structure)').sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxS=Math.max(...top.map(([,c])=>c),1);
+  document.getElementById('chart-structs').innerHTML=top.map(([id,cnt])=>`
+    <div class="bar-item">
+      <div class="bar-label" title="${sLabel(id)}">${isCB21(id)?'<span class="badge badge-cb21" style="padding:1px 4px;font-size:9px;margin-right:2px">CB21</span>':''}<span>${sLabel(id)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((cnt/maxS)*100)}%;background:${isCB21(id)?'#ef4444':'#3b82f6'}"></div></div>
+      <div class="bar-cnt">${cnt}</div>
+    </div>`).join('');
+
+  // CB21
+  const cbA=cb21Attendees();
+  document.getElementById('cb21-list').innerHTML=cbA.length===0
+    ?'<div class="empty">Aucun résident CB21 identifié — la liste est cross-référençable sans e-mail.</div>'
+    :`<table><thead><tr><th>Nom</th><th>Prénom</th><th>Structure saisie</th><th>Structure CB21</th><th>Invité par</th></tr></thead>
+      <tbody>${cbA.map(p=>`<tr>
+        <td><strong>${p.nom}</strong></td>
+        <td>${p.prenom}</td>
+        <td style="font-size:12px;color:#64748b">${p.structureRaw||'—'}</td>
+        <td><span class="badge badge-cb21">${sLabel(p.structureCanonId)}</span></td>
+        <td>${canalBadge(p.canal,p.canalAuto)}</td>
+      </tr>`).join('')}</tbody></table>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PARTICIPANTS
+// ═══════════════════════════════════════════════════════════════
+function renderP(){
+  const q=(document.getElementById('sp')?.value||'').toLowerCase();
+  const fc=document.getElementById('fp-canal')?.value||'all';
+  const fcb=document.getElementById('fp-cb21')?.value||'all';
+
+  let rows=ST.attendees.filter(p=>{
+    const mq=!q||p.nom.toLowerCase().includes(q)||p.prenom.toLowerCase().includes(q)||(p.structureRaw||'').toLowerCase().includes(q)||sLabel(p.structureCanonId).toLowerCase().includes(q);
+    const mc=fc==='all'||p.canal===fc;
+    const mcb=fcb==='all'||(fcb==='yes'&&isCB21(p.structureCanonId));
+    return mq&&mc&&mcb;
+  }).sort((a,b)=>{
+    const k=ST.sortK;
+    const av=k==='canal'?a.canal:k==='structure'?sLabel(a.structureCanonId):k==='prenom'?a.prenom:a.nom;
+    const bv=k==='canal'?b.canal:k==='structure'?sLabel(b.structureCanonId):k==='prenom'?b.prenom:b.nom;
+    return(ST.sortD==='asc'?1:-1)*av.localeCompare(bv,'fr');
+  });
+
+  const th=(k,l)=>{const a=ST.sortK===k;return`<th onclick="sortP('${k}')" style="${a?'color:#1a202c':''}">${l}${a?(ST.sortD==='asc'?' ↑':' ↓'):' ↕'}</th>`;};
+  const allSel=rows.length>0&&rows.every(p=>ST.sel.has(p.id));
+
+  document.getElementById('tbl-p').innerHTML=`
+    <table>
+      <thead><tr>
+        <th><input type="checkbox" ${allSel?'checked':''} onchange="togAll(this.checked,${JSON.stringify(rows.map(r=>r.id))})"></th>
+        ${th('nom','NOM')}${th('prenom','Prénom')}${th('structure','Structure')}
+        <th></th>
+        ${th('canal','Invité par')}
+        <th></th>
+      </tr></thead>
+      <tbody>${rows.map(p=>{
+        const cb=isCB21(p.structureCanonId);
+        const sl=sLabel(p.structureCanonId);
+        return`<tr>
+          <td><input type="checkbox" ${ST.sel.has(p.id)?'checked':''} onchange="togSel('${p.id}',this.checked)"></td>
+          <td><strong>${p.nom}</strong></td>
+          <td>${p.prenom}</td>
+          <td>${sl==='(sans structure)'?'<span style="color:#94a3b8;font-style:italic">—</span>':sl}</td>
+          <td>${cb?'<span class="badge badge-cb21" style="font-size:10px">CB21</span>':''}</td>
+          <td><div class="pill-row">${pillRowHtml(p.canal,p.id)}</div></td>
+          <td><button class="btn sm light" onclick="removeP('${p.id}')" style="padding:2px 7px;color:#94a3b8;border-color:#e2e8f0" title="Supprimer">×</button></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;padding:4px 0">${rows.length} résultat${rows.length!==1?'s':''} · ${ST.attendees.length} total</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STRUCTURES
+// ═══════════════════════════════════════════════════════════════
+function renderS(){
+  const q=(document.getElementById('ss')?.value||'').toLowerCase();
+  const fc=document.getElementById('fs-cb21')?.value||'all';
+  const cm=structCounts();
+
+  const structs=[...ST.structures.values()]
+    .filter(s=>s.label!=='(sans structure)')
+    .filter(s=>{
+      const mq=!q||s.label.toLowerCase().includes(q)||s.aliases.some(a=>a.toLowerCase().includes(q));
+      const mc=fc==='all'||(fc==='yes'&&s.isCB21);
+      return mq&&mc;
+    })
+    .sort((a,b)=>(cm.get(b.id)||0)-(cm.get(a.id)||0));
+
+  const rows=structs.map(s=>{
+    const cnt=cm.get(s.id)||0;
+    const expanded=ST.expandedStructs.has(s.id);
+    const participants=ST.attendees.filter(p=>p.structureCanonId===s.id);
+    const expandHtml=expanded?`<tr class="expand-row" id="exp-${s.id}"><td colspan="6">
+      <div style="padding:4px 0">
+        ${participants.length===0?'<span style="color:#94a3b8;font-size:12px">Aucun participant</span>':
+          participants.map(p=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f1f5f9">
+            <span style="font-size:13px;min-width:200px"><strong>${p.nom}</strong> ${p.prenom}</span>
+            <div class="pill-row" style="--pill:22px">${pillRowHtml(p.canal,p.id,22)}</div>
+          </div>`).join('')}
+      </div>
+    </td></tr>`:'';
+
+    return`<tr>
+      <td>
+        <button onclick="togExpand('${s.id}')" style="background:none;border:none;cursor:pointer;font-size:14px;padding:2px 4px;color:var(--muted)">${expanded?'▾':'▸'}</button>
+        <strong>${s.label}</strong>
+        ${s.aliases.filter(a=>norm(a)!==norm(s.label)).length?`<br><span style="font-size:11px;color:#94a3b8;font-style:italic">${s.aliases.filter(a=>norm(a)!==norm(s.label)).slice(0,3).join(', ')}</span>`:''}
+      </td>
+      <td style="text-align:center"><strong>${cnt}</strong></td>
+      <td>${s.isCB21?'<span class="badge badge-cb21">CB21</span>':''}</td>
+      <td>
+        <div class="pill-row" style="--pill:22px">
+          ${CANALS.map(c=>`<div class="pill-wrap"><div class="pill ${c.id}${s.canalDefault===c.id?' active':''}" style="--pill:22px" onclick="setStructCanal('${s.id}','${c.id}')" title="${c.label}">${c.abbr}</div><div class="tip">${c.label}</div></div>`).join('')}
+          ${s.canalDefault?`<button onclick="setStructCanal('${s.id}',null)" style="background:none;border:none;cursor:pointer;font-size:11px;color:#94a3b8;padding:0 4px" title="Effacer règle">✕</button>`:''}
+        </div>
+        ${s.canalDefault?`<div style="font-size:10px;color:#94a3b8;margin-top:2px">Règle : tous → ${CANAL_MAP[s.canalDefault]?.label}</div>`:''}
+      </td>
+      <td style="display:flex;gap:4px">
+        <button class="btn sm light" onclick="openMergeFrom('${s.id}')">Fusionner</button>
+        <button class="btn sm light" onclick="renameS('${s.id}')">Renommer</button>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:12px;color:var(--muted)">
+          <input type="checkbox" ${s.isCB21?'checked':''} onchange="togCB21('${s.id}',this.checked)"> CB21
+        </label>
+      </td>
+    </tr>${expandHtml}`;
+  }).join('');
+
+  document.getElementById('tbl-s').innerHTML=`
+    <table>
+      <thead><tr><th>Structure</th><th style="text-align:center">Participants</th><th>CB21</th><th>Invité par (règle auto)</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function togExpand(id){
+  if(ST.expandedStructs.has(id))ST.expandedStructs.delete(id);
+  else ST.expandedStructs.add(id);
+  renderS();
+}
+
+function setStructCanal(structId, canalId){
+  const st=ST.structures.get(structId);
+  if(!st) return;
+  st.canalDefault=canalId;
+  // Apply rule to all participants of this structure who were auto or unassigned
+  ST.attendees.forEach(p=>{
+    if(p.structureCanonId===structId){
+      if(canalId && (p.canalAuto||p.canal==='unassigned')){p.canal=canalId;p.canalAuto=true;}
+      else if(!canalId && p.canalAuto){p.canal='unassigned';p.canalAuto=false;}
+    }
+  });
+  renderS();
+  if(ST.view==='dash') renderDash();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAR ORGANISATION (INVITATIONS)
+// ═══════════════════════════════════════════════════════════════
+function renderI(){
+  const q=(document.getElementById('si')?.value||'').toLowerCase();
+  const onlyUnassigned=document.getElementById('fi-unassigned')?.checked;
+
+  // Unassigned first, then canal order
+  const canalOrder=[UNASSIGNED,...CANALS];
+  let html='';
+  canalOrder.forEach(canal=>{
+    let members=ST.attendees.filter(p=>p.canal===canal.id);
+    if(q) members=members.filter(p=>p.nom.toLowerCase().includes(q)||p.prenom.toLowerCase().includes(q)||(p.structureRaw||'').toLowerCase().includes(q));
+    if(onlyUnassigned&&canal.id!=='unassigned') members=[];
+    if(!onlyUnassigned&&members.length===0) return;
+
+    const expanded=ST.expandedCanals.has(canal.id);
+    const isUnassigned=canal.id==='unassigned';
+    const logo=`<div class="pill ${canal.id}" style="--pill:22px;opacity:1;font-size:8px">${canal.abbr}</div>`;
+
+    html+=`<div class="canal-section" style="border-color:${isUnassigned?'#fcd34d':canal.bg+'55'}">
+      <div class="canal-header" onclick="togCanalExpand('${canal.id}')">
+        <div class="canal-header-left">
+          ${logo}
+          <strong>${canal.label}</strong>
+          <span class="canal-count">${members.length} participant${members.length!==1?'s':''}</span>
+        </div>
+        <span style="color:var(--muted)">${expanded?'▾':'▸'}</span>
+      </div>
+      <div class="canal-body${expanded?'':' collapsed'}">
+        ${members.length===0?'<div class="empty" style="padding:20px">Aucun participant</div>':
+          `<table><thead><tr><th><input type="checkbox" onchange="togAll(this.checked,${JSON.stringify(members.map(m=>m.id))})"></th><th>NOM</th><th>Prénom</th><th>Structure</th><th>${isUnassigned?'Attribuer à':'Changer'}</th></tr></thead>
+          <tbody>${members.map(p=>`<tr>
+            <td><input type="checkbox" ${ST.sel.has(p.id)?'checked':''} onchange="togSel('${p.id}',this.checked)"></td>
+            <td><strong>${p.nom}</strong></td>
+            <td>${p.prenom}</td>
+            <td style="font-size:12px;color:#64748b">${sLabel(p.structureCanonId)==='(sans structure)'?'—':sLabel(p.structureCanonId)}</td>
+            <td><div class="pill-row" style="--pill:26px">${pillRowHtml(p.canal,p.id,26)}</div></td>
+          </tr>`).join('')}</tbody></table>`}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('inv-sections').innerHTML=html||'<div class="empty">Aucun résultat</div>';
+}
+
+function togCanalExpand(id){
+  if(ST.expandedCanals.has(id))ST.expandedCanals.delete(id);
+  else ST.expandedCanals.add(id);
+  renderI();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════════
+function setCanal(pid,canalId){
+  const p=ST.attendees.find(a=>a.id===pid);
+  if(!p) return;
+  p.canal=canalId;
+  p.canalAuto=false;
+  const v=ST.view;
+  if(v==='dash') renderDash();
+  else if(v==='part') renderP();
+  else if(v==='struct') renderS();
+  else if(v==='invit') renderI();
+  render(); // update nav counts
+}
+
+function togCB21(id,v){const s=ST.structures.get(id);if(s){s.isCB21=v;renderS();if(ST.view==='dash')renderDash();}}
+function sortP(k){ST.sortK===k?ST.sortD=ST.sortD==='asc'?'desc':'asc':(ST.sortK=k,ST.sortD='asc');renderP();}
+function togSel(id,v){v?ST.sel.add(id):ST.sel.delete(id);renderFAB();if(ST.view==='part')renderP();else if(ST.view==='invit')renderI();}
+function togAll(v,ids){ids.forEach(id=>v?ST.sel.add(id):ST.sel.delete(id));renderFAB();if(ST.view==='part')renderP();else if(ST.view==='invit')renderI();}
+function clearSel(){ST.sel.clear();renderFAB();render();}
+function removeP(id){if(!confirm('Supprimer ?')) return;ST.attendees=ST.attendees.filter(a=>a.id!==id);render();}
+
+function bulkSetCanal(canalId){
+  ST.sel.forEach(id=>{const p=ST.attendees.find(a=>a.id===id);if(p){p.canal=canalId;p.canalAuto=false;}});
+  ST.sel.clear();
+  renderFAB();
+  render();
+}
+
+function renderFAB(){
+  const fab=document.getElementById('fab');
+  if(ST.sel.size===0){fab.classList.add('hidden');return;}
+  fab.classList.remove('hidden');
+  document.getElementById('fab-cnt').textContent=ST.sel.size;
+  document.getElementById('fab-pills').innerHTML=CANALS.map(c=>`
+    <div class="pill-wrap">
+      <div class="pill ${c.id} active" style="--pill:28px" onclick="bulkSetCanal('${c.id}')">${c.abbr}</div>
+      <div class="tip">${c.label}</div>
+    </div>`).join('');
+}
+
+// ADD PARTICIPANT
+function openAddP(){
+  ['ap-n','ap-p','ap-s'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('ap-canal').value='unassigned';
+  document.getElementById('ap-pills').innerHTML=CANALS.map(c=>`
+    <div class="pill-wrap"><div class="pill ${c.id}" style="--pill:36px" onclick="selAddPCanal('${c.id}',this)" id="ap-pill-${c.id}">${c.abbr}</div><div class="tip">${c.label}</div></div>`).join('');
+  openModal('mo-addp');
+}
+function selAddPCanal(id,el){
+  document.getElementById('ap-canal').value=id;
+  document.querySelectorAll('#ap-pills .pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+function confirmAddP(){
+  const n=document.getElementById('ap-n').value.trim().toUpperCase();
+  if(!n) return;
+  const s=document.getElementById('ap-s').value.trim();
+  const sid=resolveStruct(s);
+  const canal=document.getElementById('ap-canal').value||'unassigned';
+  ST.attendees.push({id:'p'+(++_seq),nom:n,prenom:document.getElementById('ap-p').value.trim(),structureRaw:s,structureCanonId:sid,canal,canalAuto:false,origin:'manual'});
+  closeModal('mo-addp');render();
+}
+
+// ADD STRUCTURE
+function openAddS(){
+  document.getElementById('as-n').value='';
+  document.getElementById('as-cb21').checked=false;
+  document.getElementById('as-canal').value='unassigned';
+  document.getElementById('as-pills').innerHTML=CANALS.map(c=>`
+    <div class="pill-wrap"><div class="pill ${c.id}" style="--pill:36px" onclick="selAddSCanal('${c.id}',this)">${c.abbr}</div><div class="tip">${c.label}</div></div>`).join('');
+  openModal('mo-adds');
+}
+function selAddSCanal(id,el){
+  document.getElementById('as-canal').value=id;
+  document.querySelectorAll('#as-pills .pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+function confirmAddS(){
+  const n=document.getElementById('as-n').value.trim();
+  if(!n) return;
+  const id=resolveStruct(n);
+  const st=ST.structures.get(id);
+  st.isCB21=document.getElementById('as-cb21').checked;
+  const canal=document.getElementById('as-canal').value;
+  if(canal&&canal!=='unassigned') st.canalDefault=canal;
+  closeModal('mo-adds');render();
+}
+
+// MERGE
+function openMerge(){fillMergeSels(null);openModal('mo-merge');}
+function openMergeFrom(id){fillMergeSels(id);openModal('mo-merge');}
+function fillMergeSels(fromId){
+  const ss=[...ST.structures.values()].filter(s=>s.label!=='(sans structure)').sort((a,b)=>a.label.localeCompare(b.label,'fr'));
+  const opts=ss.map(s=>`<option value="${s.id}">${s.label}</option>`).join('');
+  document.getElementById('mg-into').innerHTML=opts;
+  document.getElementById('mg-from').innerHTML=opts;
+  if(fromId){document.getElementById('mg-from').value=fromId;const o=ss.find(s=>s.id!==fromId);if(o)document.getElementById('mg-into').value=o.id;}
+}
+function confirmMerge(){
+  const into=document.getElementById('mg-into').value,from=document.getElementById('mg-from').value;
+  if(into===from) return closeModal('mo-merge');
+  ST.attendees.forEach(p=>{if(p.structureCanonId===from)p.structureCanonId=into;});
+  const f=ST.structures.get(from),t=ST.structures.get(into);
+  if(f&&t){f.aliases.forEach(a=>{if(!t.aliases.includes(a))t.aliases.push(a);});t.aliases.push(f.label);ST.aliasIdx.set(norm(f.label),into);f.aliases.forEach(a=>ST.aliasIdx.set(norm(a),into));if(f.isCB21)t.isCB21=true;ST.structures.delete(from);}
+  closeModal('mo-merge');render();
+}
+
+function renameS(id){
+  const s=ST.structures.get(id);if(!s)return;
+  const nl=prompt(`Renommer "${s.label}" :`,s.label);
+  if(nl&&nl.trim()&&nl.trim()!==s.label){s.aliases.push(s.label);s.label=nl.trim();renderS();}
+}
+
+// WEEZEVENT SYNC
+async function syncWeez(){
+  const key=document.getElementById('wz-key').value.trim();
+  const token=document.getElementById('wz-token').value.trim();
+  const eventId=document.getElementById('wz-event').value.trim();
+  const status=document.getElementById('wz-status');
+  if(!key||!token||!eventId){status.textContent='⚠ Remplis tous les champs.';status.style.color='#c2410c';return;}
+  status.textContent='Connexion en cours…';status.style.color='#0369a1';
+  try{
+    const url=`https://api.weezevent.com/participant/list?api_key=${encodeURIComponent(key)}&access_token=${encodeURIComponent(token)}&id_event[]=${encodeURIComponent(eventId)}&full=1`;
+    const r=await fetch(url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const participants=data.participants||data.attendees||[];
+    let added=0,updated=0;
+    participants.forEach(wz=>{
+      const nom=(wz.last_name||wz.nom||'').trim().toUpperCase();
+      const prenom=(wz.first_name||wz.prenom||'').trim();
+      const struct=(wz.company||wz.answers?.find(a=>a.type==='company')?.value||'').trim();
+      const existing=ST.attendees.find(p=>p.nom===nom&&p.prenom.toLowerCase()===prenom.toLowerCase());
+      if(!existing){
+        const sid=resolveStruct(struct);
+        ST.attendees.push({id:'p'+(++_seq),nom,prenom,structureRaw:struct,structureCanonId:sid,canal:'unassigned',canalAuto:false,origin:'weez'});
+        added++;
+      } else {
+        if(struct&&!existing.structureRaw){existing.structureRaw=struct;existing.structureCanonId=resolveStruct(struct);}
+        updated++;
+      }
+    });
+    status.textContent=`✓ ${added} ajoutés, ${updated} mis à jour.`;status.style.color='#16a34a';
+    render();
+  } catch(e){
+    status.innerHTML=`✗ Erreur : ${e.message}<br><small>Souvent dû au CORS. Utilise l'import CSV à la place, ou héberge ce fichier sur un serveur.</small>`;
+    status.style.color='#c2410c';
+  }
+}
+
+function importCSV(){
+  const file=document.getElementById('wz-csv').files?.[0];
+  const status=document.getElementById('wz-status');
+  if(!file){status.textContent='⚠ Sélectionne un fichier CSV.';status.style.color='#c2410c';return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const lines=e.target.result.split(/\r?\n/).filter(Boolean);
+    if(lines.length<2){status.textContent='Fichier vide ou invalide.';return;}
+    const sep=lines[0].includes(';')?';':',';
+    const headers=lines[0].split(sep).map(h=>h.trim().toLowerCase().replace(/[^a-z]/g,''));
+    const iN=headers.findIndex(h=>h.includes('nom')||h.includes('name')||h.includes('last'));
+    const iP=headers.findIndex(h=>h.includes('prenom')||h.includes('first'));
+    const iS=headers.findIndex(h=>h.includes('soci')||h.includes('orga')||h.includes('comp')||h.includes('ecole'));
+    let added=0;
+    lines.slice(1).forEach(line=>{
+      const cols=line.split(sep).map(c=>c.trim().replace(/^"|"$/g,''));
+      const nom=(cols[iN]||'').toUpperCase().trim();
+      const prenom=(cols[iP]||'').trim();
+      if(!nom) return;
+      const struct=(iS>=0?cols[iS]:'').trim();
+      const existing=ST.attendees.find(p=>p.nom===nom&&p.prenom.toLowerCase()===prenom.toLowerCase());
+      if(!existing){
+        const sid=resolveStruct(struct);
+        ST.attendees.push({id:'p'+(++_seq),nom,prenom,structureRaw:struct,structureCanonId:sid,canal:'unassigned',canalAuto:false,origin:'csv'});
+        added++;
+      }
+    });
+    status.textContent=`✓ ${added} nouveaux participants importés.`;status.style.color='#16a34a';
+    render();
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+// EXPORT CSV
+function exportCSV(){
+  const BOM='﻿';
+  const rows=[['NOM','Prénom','Structure (saisie)','Structure (canonique)','CB21','Invité par','Auto']];
+  ST.attendees.forEach(p=>rows.push([p.nom,p.prenom,p.structureRaw,sLabel(p.structureCanonId),isCB21(p.structureCanonId)?'Oui':'Non',CANAL_MAP[p.canal]?.label||p.canal,p.canalAuto?'Oui':'Non']));
+  const csv=BOM+rows.map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(';')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='participants-grandes-conversations-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+function copySummary(){
+  const cc=canalCounts();const total=ST.attendees.length;
+  const lines=[
+    '📊 Les Grandes Conversations — 11 juin 2026',
+    `${total} inscrits · ${pctAttrib()}% attribués · ${cb21Attendees().length} résidents CB21`,
+    '',
+    'Par organisation invitante :',
+    ...CANALS.map(c=>`  ${c.label} : ${cc[c.id]||0}`),
+    `  Non attribué : ${cc.unassigned||0}`,
+    '',
+    'Source : WeezEvent · listing 09/06/2026 07h00',
+  ];
+  navigator.clipboard.writeText(lines.join('\n'))
+    .then(()=>alert('Copié ✓'))
+    .catch(()=>prompt('Copier :',lines.join('\n')));
+}
+
+// MODAL HELPERS
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+function switchView(v){
+  ST.view=v;
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelector(`.nb[data-v="${v}"]`).classList.add('active');
+  render();
+}
+
+function openAddP_exposed(){openAddP();}
+
+boot();
+
+// ── Auto-sync from server (when hosted via server.js) ─────────────────────
+// If the page is served by the Node server, /api/participants exists.
+// In that case we poll it every 5 min and merge new WeezEvent participants.
+(function serverAutoSync(){
+  const POLL_MS = 5 * 60 * 1000; // 5 minutes
+  function applyServerData(data){
+    if(!data||!Array.isArray(data.participants)||!data.participants.length) return;
+    let added=0;
+    data.participants.forEach(p=>{
+      // WeezEvent participant shape: p.first_name / p.last_name / p.owner / p.barcode
+      const nom=(p.last_name||p.nom||'').toUpperCase().trim();
+      const prenom=(p.first_name||p.prenom||'').trim();
+      const structure=(p.owner||p.organisation||p.structureRaw||'').trim();
+      if(!nom) return;
+      const exists=ST.attendees.some(a=>
+        a.nom.toUpperCase()===nom && a.prenom.toLowerCase()===prenom.toLowerCase()
+      );
+      if(!exists){
+        const sid=resolveStruct(structure);
+        const stDef=ST.structures.get(sid)?.canalDefault||null;
+        ST.attendees.push({
+          id:'p'+(++_seq),nom,prenom,
+          structureRaw:structure,structureCanonId:sid,
+          canal:stDef||'unassigned',canalAuto:!!stDef,origin:'weez',
+        });
+        added++;
+      }
+    });
+    if(added>0){render();console.log(`[autoSync] +${added} nouveaux participants`);}
+    // Update last-sync badge if element exists
+    const badge=document.getElementById('last-sync-badge');
+    if(badge&&data.lastSync) badge.textContent='Sync: '+new Date(data.lastSync).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  }
+  function poll(){
+    fetch('/api/participants')
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(applyServerData)
+      .catch(()=>{}); // silently ignore when not on server
+  }
+  // Only run if served from http/https (not file://)
+  if(location.protocol!=='file:'){
+    poll();
+    setInterval(poll, POLL_MS);
+  }
+})();
+</script>
+</body>
+</html>

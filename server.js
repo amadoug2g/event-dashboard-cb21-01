@@ -7,6 +7,8 @@
 require('dotenv').config();
 const express  = require('express');
 const https    = require('https');
+const http     = require('http');
+const fs       = require('fs');
 const path     = require('path');
 const qs       = require('querystring');
 
@@ -18,7 +20,7 @@ const WZ_EVENT_ID = process.env.WZ_EVENT_ID;
 const WZ_USERNAME = process.env.WZ_USERNAME;
 const WZ_PASSWORD = process.env.WZ_PASSWORD;
 const SYNC_SECRET = process.env.SYNC_SECRET;
-const REFRESH_MS  = parseInt(process.env.REFRESH_INTERVAL || '300000', 10);
+const REFRESH_MS  = parseInt(process.env.REFRESH_INTERVAL || '300000', 10); // 5 minutes
 
 let WZ_TOKEN = process.env.WZ_TOKEN;
 
@@ -118,6 +120,10 @@ async function syncParticipants() {
 }
 
 // ── Routes (read-only) ────────────────────────────────────────────────────────
+
+// Serve Let's Encrypt webroot challenge files (for cert renewal)
+app.use('/.well-known', express.static(path.join(__dirname, 'webroot/.well-known')));
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'analyse-cb21.html'));
 });
@@ -143,9 +149,28 @@ app.post('/api/sync', (req, res) => {
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`[server] Listening on http://localhost:${PORT}`);
+const SSL_PORT = process.env.SSL_PORT || 3443;
+const CERT_DIR = path.join(__dirname, 'certs');
+
+// HTTP server (port 80 → 3000 via iptables)
+const BIND_HOST_HTTP = process.env.BIND_HOST || '0.0.0.0';
+http.createServer(app).listen(PORT, BIND_HOST_HTTP, () => {
+  console.log(`[server] HTTP on port ${PORT}`);
   console.log(`[server] Polling WeezEvent every ${REFRESH_MS / 1000}s`);
   syncParticipants();
   setInterval(syncParticipants, REFRESH_MS);
 });
+
+// HTTPS server (port 443 → 3443 via iptables)
+try {
+  const sslOptions = {
+    cert: fs.readFileSync(path.join(CERT_DIR, 'fullchain.pem')),
+    key:  fs.readFileSync(path.join(CERT_DIR, 'privkey.pem')),
+  };
+  const BIND_HOST = process.env.BIND_HOST || '0.0.0.0';
+  https.createServer(sslOptions, app).listen(SSL_PORT, BIND_HOST, () => {
+    console.log(`[server] HTTPS on port ${SSL_PORT}`);
+  });
+} catch (e) {
+  console.warn('[ssl] Could not start HTTPS:', e.message);
+}

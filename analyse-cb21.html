@@ -19,17 +19,20 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
 
 /* HEADER */
-.hdr{background:var(--header);color:#f8fafc;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.hdr-left h1{font-size:15px;font-weight:600}
-.hdr-left .sub{font-size:11px;color:#94a3b8;margin-top:2px}
-.hdr-right{display:flex;gap:8px;align-items:center}
-.btn{padding:6px 13px;font-size:12px;font-weight:500;border-radius:6px;border:1px solid #334155;background:transparent;color:#f8fafc;cursor:pointer;white-space:nowrap}
+.hdr{background:var(--header);color:#f8fafc;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.hdr-left h1{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.hdr-left .sub{font-size:11px;color:#64748b;margin-top:3px}
+.hdr-right{display:flex;gap:10px;align-items:center}
+.btn{padding:7px 14px;font-size:12px;font-weight:500;border-radius:7px;border:1px solid #334155;background:transparent;color:#f8fafc;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
 .btn:hover{background:#1e293b}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.primary:hover{background:#2563eb}
 .btn.sm{padding:4px 9px;font-size:12px}
 .btn.light{background:var(--white);border-color:var(--border);color:var(--text)}
 .btn.light:hover{background:#f8fafc}
+.btn-refresh{display:flex;align-items:center;gap:6px}
+.btn-refresh .icon{font-size:15px;line-height:1}
 
 /* NAV */
 .nav{background:var(--white);border-bottom:1px solid var(--border);display:flex;padding:0 20px}
@@ -38,16 +41,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .nb:hover{color:var(--text)}
 
 /* LAYOUT */
-.main{padding:20px;max-width:1200px;margin:0 auto}
+.main{padding:24px;max-width:1200px;margin:0 auto}
 .view{display:none}
 .view.active{display:block}
 
 /* KPIs */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.kpi{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
-.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
-.kpi-val{font-size:28px;font-weight:700;line-height:1.1}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.kpi-val{font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
 .kpi.good .kpi-val{color:#16a34a}
 .kpi.warn .kpi-val{color:#d97706}
 
@@ -97,6 +100,7 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
 .badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:9px;font-size:11px;font-weight:600;white-space:nowrap}
 .badge-cb21{background:#fef2f2;color:var(--cb21);border:1px solid #fecaca}
 .badge-auto{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;font-size:10px}
+.badge-dup{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-size:10px}
 
 /* CANAL BADGE */
 .canal-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600}
@@ -166,81 +170,29 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
     <div class="sub">Tour CB21, La Défense &nbsp;·&nbsp; <span id="last-sync-badge">chargement…</span></div>
   </div>
   <div class="hdr-right">
-    <button class="btn" id="btn-refresh" onclick="manualRefresh()" title="Rafraîchir maintenant">⟳</button>
-    <button class="btn" onclick="exportCSV()">↓ CSV</button>
+    <button class="btn btn-refresh" id="btn-refresh" onclick="manualRefresh()"><span class="icon">↻</span> Mettre à jour</button>
+    <button class="btn" onclick="exportCSV()">↓ Exporter les inscrits</button>
   </div>
-</div>
-
-<div class="nav">
-  <button class="nb active" data-v="dash" onclick="switchView('dash')">Vue d'ensemble</button>
-  <button class="nb" data-v="part" onclick="switchView('part')">Participants <span id="nc-p"></span></button>
-  <button class="nb" data-v="struct" onclick="switchView('struct')">Structures <span id="nc-s"></span></button>
 </div>
 
 <div class="main">
 
-<!-- ═══════════════════ DASHBOARD ═══════════════════ -->
-<div class="view active" id="view-dash">
-  <div class="kpis" id="kpis"></div>
-  <div class="card-row">
-    <div class="card">
-      <div class="card-title">Participants par organisation invitante</div>
-      <div id="chart-canal"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Top structures représentées</div>
-      <div id="chart-structs"></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Résidents Tour CB21 identifiés parmi les inscrits</div>
-    <div id="cb21-list"></div>
-  </div>
-</div>
+<!-- ═══════════════════ KPIs ═══════════════════ -->
+<div class="kpis" id="kpis"></div>
 
 <!-- ═══════════════════ PARTICIPANTS ═══════════════════ -->
-<div class="view" id="view-part">
-  <div class="toolbar">
-    <input class="srch" id="sp" placeholder="Nom, prénom, structure…" oninput="renderP()">
-    <select class="fsel" id="fp-canal" onchange="renderP()">
-      <option value="all">Toutes organisations</option>
-      <option value="unassigned">Non attribué</option>
-      <option value="lespilotes">Les Pilotes</option>
-      <option value="time2start">Time2Start</option>
-      <option value="descodeuses">DesCodeuses</option>
-      <option value="covivio">Covivio / CB21</option>
-      <option value="libre">Entrée libre</option>
-    </select>
-    <select class="fsel" id="fp-cb21" onchange="renderP()">
-      <option value="all">Tous</option>
-      <option value="yes">Résidents CB21</option>
-    </select>
-  </div>
-  <div id="tbl-p"></div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:8px">
+  <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Liste des inscrits</div>
+  <div id="dup-banner" style="display:none;font-size:12px;color:#c2410c;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:4px 10px"></div>
 </div>
-
-<!-- ═══════════════════ STRUCTURES ═══════════════════ -->
-<div class="view" id="view-struct">
-  <div class="toolbar">
-    <input class="srch" id="ss" placeholder="Rechercher une structure…" oninput="renderS()">
-    <select class="fsel" id="fs-cb21" onchange="renderS()">
-      <option value="all">Toutes</option>
-      <option value="yes">CB21 uniquement</option>
-    </select>
-  </div>
-  <div id="tbl-s"></div>
+<div class="toolbar">
+  <input class="srch" id="sp" placeholder="Rechercher par nom, prénom, structure…" oninput="renderP()">
+  <select class="fsel" id="fp-cb21" onchange="renderP()">
+    <option value="all">Tous les inscrits</option>
+    <option value="yes">Résidents CB21 uniquement</option>
+  </select>
 </div>
-
-<!-- ═══════════════════ PAR ORGANISATION ═══════════════════ -->
-<div class="view" id="view-invit">
-  <div class="toolbar">
-    <input class="srch" id="si" placeholder="Rechercher…" oninput="renderI()">
-    <label style="font-size:13px;display:flex;align-items:center;gap:6px;color:var(--muted);cursor:pointer">
-      <input type="checkbox" id="fi-unassigned" onchange="renderI()"> Afficher seulement non attribués
-    </label>
-  </div>
-  <div id="inv-sections"></div>
-</div>
+<div id="tbl-p"></div>
 
 </div><!-- .main -->
 
@@ -629,6 +581,13 @@ const sLabel=id=>ST.structures.get(id)?.label||id;
 const isCB21=id=>ST.structures.get(id)?.isCB21||false;
 function structCounts(){const m=new Map();ST.attendees.forEach(p=>m.set(p.structureCanonId,(m.get(p.structureCanonId)||0)+1));return m;}
 function canalCounts(){const c=Object.fromEntries(ALL_CANALS.map(a=>[a.id,0]));ST.attendees.forEach(p=>{c[p.canal]=(c[p.canal]||0)+1;});return c;}
+function findDuplicates(){
+  const seen=new Map();
+  ST.attendees.forEach(p=>{const k=p.nom+'|'+p.prenom.toLowerCase();if(!seen.has(k))seen.set(k,[]);seen.get(k).push(p.id);});
+  const dupeIds=new Set();
+  seen.forEach(ids=>{if(ids.length>1)ids.forEach(id=>dupeIds.add(id));});
+  return dupeIds;
+}
 function cb21Attendees(){return ST.attendees.filter(p=>isCB21(p.structureCanonId));}
 function pctAttrib(){const a=ST.attendees.filter(p=>p.canal!=='unassigned').length;return ST.attendees.length?Math.round(a/ST.attendees.length*100):0;}
 
@@ -651,16 +610,8 @@ function canalBadge(canalId, isAuto=false){
 // RENDER MASTER
 // ═══════════════════════════════════════════════════════════════
 function render(){
-  const total=ST.attendees.length;
-  const ns=[...ST.structures.values()].filter(s=>s.label!=='(sans structure)').length;
-  document.getElementById('nc-p').textContent=`(${total})`;
-  document.getElementById('nc-s').textContent=`(${ns})`;
-  const cc=canalCounts();
-  if(ST.view==='dash')    renderDash();
-  if(ST.view==='part')    renderP();
-  if(ST.view==='struct')  renderS();
-  if(ST.view==='invit')   renderI();
-  renderFAB();
+  renderDash();
+  renderP();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -673,7 +624,7 @@ function renderDash(){
   const ns=[...ST.structures.values()].filter(s=>s.label!=='(sans structure)').length;
   const noS=ST.attendees.filter(p=>sLabel(p.structureCanonId)==='(sans structure)').length;
 
-  const covivioCount=cc.covivio||0;
+  const cb21Count=cb21Attendees().length;
   document.getElementById('kpis').innerHTML=`
     <div class="kpi">
       <div class="kpi-lbl">Inscrits</div>
@@ -683,56 +634,18 @@ function renderDash(){
     <div class="kpi">
       <div class="kpi-lbl">Structures</div>
       <div class="kpi-val">${ns}</div>
-      <div class="kpi-sub">${noS} sans société</div>
+      <div class="kpi-sub">${noS} sans société renseignée</div>
     </div>
     <div class="kpi">
       <div class="kpi-lbl">Résidents CB21</div>
-      <div class="kpi-val">${cb21Attendees().length}</div>
+      <div class="kpi-val">${cb21Count}</div>
       <div class="kpi-sub">Identifiés parmi inscrits</div>
     </div>
-    <div class="kpi">
-      <div class="kpi-lbl">Covivio / CB21</div>
-      <div class="kpi-val">${covivioCount}</div>
-      <div class="kpi-sub">${total-covivioCount} hors tour</div>
+    <div class="kpi${noS>10?' warn':''}">
+      <div class="kpi-lbl">Sans structure</div>
+      <div class="kpi-val">${noS}</div>
+      <div class="kpi-sub">Société non renseignée</div>
     </div>`;
-
-  // Canal chart
-  const maxC=Math.max(...CANALS.map(c=>cc[c.id]||0),1);
-  document.getElementById('chart-canal').innerHTML=CANALS.map(c=>`
-    <div class="bar-item">
-      <div class="bar-label"><div class="pill ${c.id}" style="--pill:16px;opacity:1;flex-shrink:0;font-size:7px">${c.abbr}</div><span>${c.label}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(((cc[c.id]||0)/maxC)*100)}%;background:${c.bg}"></div></div>
-      <div class="bar-cnt">${cc[c.id]||0}</div>
-    </div>`).join('')
-    +`<div class="bar-item" style="margin-top:8px;border-top:1px solid #f1f5f9;padding-top:8px">
-      <div class="bar-label" style="color:#94a3b8;font-style:italic">Non attribué</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(((cc.unassigned||0)/total)*100)}%;background:#e2e8f0"></div></div>
-      <div class="bar-cnt" style="color:#94a3b8">${cc.unassigned||0}</div>
-    </div>`;
-
-  // Struct chart
-  const cm=structCounts();
-  const top=[...cm.entries()].filter(([id])=>sLabel(id)!=='(sans structure)').sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const maxS=Math.max(...top.map(([,c])=>c),1);
-  document.getElementById('chart-structs').innerHTML=top.map(([id,cnt])=>`
-    <div class="bar-item">
-      <div class="bar-label" title="${sLabel(id)}">${isCB21(id)?'<span class="badge badge-cb21" style="padding:1px 4px;font-size:9px;margin-right:2px">CB21</span>':''}<span>${sLabel(id)}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((cnt/maxS)*100)}%;background:${isCB21(id)?'#ef4444':'#3b82f6'}"></div></div>
-      <div class="bar-cnt">${cnt}</div>
-    </div>`).join('');
-
-  // CB21
-  const cbA=cb21Attendees();
-  document.getElementById('cb21-list').innerHTML=cbA.length===0
-    ?'<div class="empty">Aucun résident CB21 identifié — la liste est cross-référençable sans e-mail.</div>'
-    :`<table><thead><tr><th>Nom</th><th>Prénom</th><th>Structure saisie</th><th>Structure CB21</th><th>Invité par</th></tr></thead>
-      <tbody>${cbA.map(p=>`<tr>
-        <td><strong>${p.nom}</strong></td>
-        <td>${p.prenom}</td>
-        <td style="font-size:12px;color:#64748b">${p.structureRaw||'—'}</td>
-        <td><span class="badge badge-cb21">${sLabel(p.structureCanonId)}</span></td>
-        <td>${canalBadge(p.canal,p.canalAuto)}</td>
-      </tr>`).join('')}</tbody></table>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -740,45 +653,57 @@ function renderDash(){
 // ═══════════════════════════════════════════════════════════════
 function renderP(){
   const q=(document.getElementById('sp')?.value||'').toLowerCase();
-  const fc=document.getElementById('fp-canal')?.value||'all';
   const fcb=document.getElementById('fp-cb21')?.value||'all';
+  const dupeIds=findDuplicates();
+
+  // Update dup banner
+  const banner=document.getElementById('dup-banner');
+  if(banner){
+    const dupCount=dupeIds.size;
+    if(dupCount>0){banner.style.display='';banner.textContent=`⚠ ${dupCount} inscription${dupCount>1?'s':''}${dupCount>1?' en doublon':' en doublon'} détectée${dupCount>1?'s':''}`;}
+    else{banner.style.display='none';}
+  }
 
   let rows=ST.attendees.filter(p=>{
     const mq=!q||p.nom.toLowerCase().includes(q)||p.prenom.toLowerCase().includes(q)||(p.structureRaw||'').toLowerCase().includes(q)||sLabel(p.structureCanonId).toLowerCase().includes(q);
-    const mc=fc==='all'||p.canal===fc;
     const mcb=fcb==='all'||(fcb==='yes'&&isCB21(p.structureCanonId));
-    return mq&&mc&&mcb;
+    return mq&&mcb;
   }).sort((a,b)=>{
     const k=ST.sortK;
-    const av=k==='canal'?a.canal:k==='structure'?sLabel(a.structureCanonId):k==='prenom'?a.prenom:a.nom;
-    const bv=k==='canal'?b.canal:k==='structure'?sLabel(b.structureCanonId):k==='prenom'?b.prenom:b.nom;
+    if(k==='date'){
+      const ad=a.dateInscription?new Date(a.dateInscription).getTime():0;
+      const bd=b.dateInscription?new Date(b.dateInscription).getTime():0;
+      return(ST.sortD==='asc'?1:-1)*(ad-bd);
+    }
+    const av=k==='structure'?sLabel(a.structureCanonId):k==='prenom'?a.prenom:a.nom;
+    const bv=k==='structure'?sLabel(b.structureCanonId):k==='prenom'?b.prenom:b.nom;
     return(ST.sortD==='asc'?1:-1)*av.localeCompare(bv,'fr');
   });
 
   const th=(k,l)=>{const a=ST.sortK===k;return`<th onclick="sortP('${k}')" style="${a?'color:#1a202c':''}">${l}${a?(ST.sortD==='asc'?' ↑':' ↓'):' ↕'}</th>`;};
-  const allSel=rows.length>0&&rows.every(p=>ST.sel.has(p.id));
 
   document.getElementById('tbl-p').innerHTML=`
     <table>
       <thead><tr>
-        ${th('nom','NOM')}${th('prenom','Prénom')}${th('structure','Structure')}
+        ${th('nom','Nom')}${th('prenom','Prénom')}${th('structure','Structure')}
         <th>CB21</th>
-        ${th('date','Inscription')}
+        ${th('date','Date d\'inscription')}
       </tr></thead>
       <tbody>${rows.map(p=>{
         const cb=isCB21(p.structureCanonId);
         const sl=sLabel(p.structureCanonId);
+        const isDup=dupeIds.has(p.id);
         const dateStr=p.dateInscription?new Date(p.dateInscription).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
-        return`<tr>
-          <td><strong>${p.nom}</strong></td>
+        return`<tr${isDup?' style="background:#fffbf5"':''}>
+          <td><strong>${p.nom}</strong>${isDup?' <span class="badge badge-dup">doublon</span>':''}</td>
           <td>${p.prenom}</td>
           <td>${sl==='(sans structure)'?'<span style="color:#94a3b8;font-style:italic">—</span>':sl}</td>
-          <td>${cb?'<span class="badge badge-cb21" style="font-size:10px">CB21</span>':''}</td>
+          <td>${cb?'<span class="badge badge-cb21">CB21</span>':''}</td>
           <td style="font-size:12px;color:#64748b">${dateStr}</td>
         </tr>`;
       }).join('')}</tbody>
     </table>
-    <div style="font-size:12px;color:var(--muted);margin-top:8px;padding:4px 0">${rows.length} résultat${rows.length!==1?'s':''} · ${ST.attendees.length} total</div>`;
+    <div style="font-size:12px;color:var(--muted);margin-top:10px;padding:4px 0">${rows.length} résultat${rows.length!==1?'s':''} · ${ST.attendees.length} inscrits au total</div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -847,8 +772,8 @@ function setStructCanal(structId, canalId){
       else if(!canalId && p.canalAuto){p.canal='unassigned';p.canalAuto=false;}
     }
   });
-  renderS();
-  if(ST.view==='dash') renderDash();
+  renderDash();
+  renderP();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -911,18 +836,13 @@ function setCanal(pid,canalId){
   if(!p) return;
   p.canal=canalId;
   p.canalAuto=false;
-  const v=ST.view;
-  if(v==='dash') renderDash();
-  else if(v==='part') renderP();
-  else if(v==='struct') renderS();
-  else if(v==='invit') renderI();
-  render(); // update nav counts
+  render();
 }
 
-function togCB21(id,v){const s=ST.structures.get(id);if(s){s.isCB21=v;renderS();if(ST.view==='dash')renderDash();}}
+function togCB21(id,v){const s=ST.structures.get(id);if(s){s.isCB21=v;renderDash();renderP();}}
 function sortP(k){ST.sortK===k?ST.sortD=ST.sortD==='asc'?'desc':'asc':(ST.sortK=k,ST.sortD='asc');renderP();}
-function togSel(id,v){v?ST.sel.add(id):ST.sel.delete(id);renderFAB();if(ST.view==='part')renderP();else if(ST.view==='invit')renderI();}
-function togAll(v,ids){ids.forEach(id=>v?ST.sel.add(id):ST.sel.delete(id));renderFAB();if(ST.view==='part')renderP();else if(ST.view==='invit')renderI();}
+function togSel(id,v){v?ST.sel.add(id):ST.sel.delete(id);renderFAB();renderP();}
+function togAll(v,ids){ids.forEach(id=>v?ST.sel.add(id):ST.sel.delete(id));renderFAB();renderP();}
 function clearSel(){ST.sel.clear();renderFAB();render();}
 function removeP(id){if(!confirm('Supprimer ?')) return;ST.attendees=ST.attendees.filter(a=>a.id!==id);render();}
 
@@ -1126,14 +1046,7 @@ function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
-function switchView(v){
-  ST.view=v;
-  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nb').forEach(el=>el.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  document.querySelector(`.nb[data-v="${v}"]`).classList.add('active');
-  render();
-}
+function switchView(v){ render(); }
 
 function openAddP_exposed(){openAddP();}
 
@@ -1141,7 +1054,7 @@ boot();
 
 // ── Auto-sync from server ──────────────────────────────────────────────────
 (function serverAutoSync(){
-  const POLL_MS = 60 * 1000; // 1 minute
+  const POLL_MS = 5 * 60 * 1000; // 5 minutes
 
   function updateSyncBadge(lastSync){
     const badge=document.getElementById('last-sync-badge');
@@ -1158,11 +1071,11 @@ boot();
 
   function manualRefresh(){
     const btn=document.getElementById('btn-refresh');
-    if(btn){btn.textContent='⟳';btn.disabled=true;btn.style.opacity='.5';}
+    if(btn){btn.innerHTML='<span class="icon">↻</span> Mise à jour…';btn.disabled=true;}
     fetch('/api/participants')
       .then(r=>r.ok?r.json():Promise.reject(r.status))
-      .then(data=>{applyServerData(data);if(btn){btn.textContent='⟳';btn.disabled=false;btn.style.opacity='1';}})
-      .catch(()=>{if(btn){btn.disabled=false;btn.style.opacity='1';}});
+      .then(data=>{applyServerData(data);if(btn){btn.innerHTML='<span class="icon">↻</span> Mettre à jour';btn.disabled=false;}})
+      .catch(()=>{if(btn){btn.innerHTML='<span class="icon">↻</span> Mettre à jour';btn.disabled=false;}});
   }
 
   function applyServerData(data){
@@ -1173,24 +1086,28 @@ boot();
     data.participants.forEach(p=>{
       const nom=(p.owner?.last_name||p.last_name||p.nom||'').toUpperCase().trim();
       const prenom=(p.owner?.first_name||p.first_name||p.prenom||'').trim();
+      const struct=(p.owner?.company||p.company||p.answers?.find?.(a=>a.type==='company')?.value||'').trim();
       const dateInscription=p.create_date||'';
       if(!nom) return;
       const exists=ST.attendees.some(a=>
         a.nom===nom && a.prenom.toLowerCase()===prenom.toLowerCase()
       );
       if(!exists){
-        const sid=resolveStruct('');
+        const sid=resolveStruct(struct);
         ST.attendees.push({
           id:'p'+(++_seq),nom,prenom,
-          structureRaw:'',structureCanonId:sid,
+          structureRaw:struct,structureCanonId:sid,
           canal:'autre',canalAuto:false,origin:'weez',
           dateInscription,
         });
         added++;
       } else {
-        // Update dateInscription if missing
+        // Update missing fields from WeezEvent data
         const existing=ST.attendees.find(a=>a.nom===nom&&a.prenom.toLowerCase()===prenom.toLowerCase());
-        if(existing&&!existing.dateInscription&&dateInscription) existing.dateInscription=dateInscription;
+        if(existing){
+          if(!existing.dateInscription&&dateInscription) existing.dateInscription=dateInscription;
+          if(!existing.structureRaw&&struct){existing.structureRaw=struct;existing.structureCanonId=resolveStruct(struct);}
+        }
       }
     });
 

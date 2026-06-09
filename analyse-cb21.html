@@ -105,20 +105,44 @@ tr:hover td{background:#fafbfe}
 .canal-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600}
 .fab{display:none}
 
+/* ── SKELETON / SHIMMER ──────────────────────────────────── */
+@keyframes shimmer{0%{background-position:200% 0}to{background-position:-200% 0}}
+.skel{background:linear-gradient(90deg,#f1f5f9 25%,#e8edf5 50%,#f1f5f9 75%);background-size:200% 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:5px;display:block}
+.kpi-skel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+.kpi-skel::before{content:'';display:block;height:3px;background:#f1f5f9;border-radius:2px;margin-bottom:14px}
+.skel-lbl{height:10px;width:60%;margin-bottom:10px}
+.skel-val{height:34px;width:45%;margin-bottom:8px}
+.skel-sub{height:9px;width:80%}
+.skel-toolbar{display:flex;gap:8px;margin-bottom:12px}
+.skel-search{flex:1;height:36px;border-radius:7px}
+.skel-select{width:180px;height:36px;border-radius:7px}
+.skel-tbl{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.skel-thead{height:36px;background:#f8fafc;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:16px}
+.skel-th{height:10px;border-radius:4px}
+.skel-row{display:flex;align-items:center;padding:10px 14px;gap:16px;border-bottom:1px solid #f1f5f9}
+.skel-row:last-child{border-bottom:none}
+.skel-cell{height:13px;border-radius:4px}
+
 /* ── RESPONSIVE ─────────────────────────────────────────── */
 @media(max-width:700px){
-  .kpis{grid-template-columns:1fr 1fr}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
   .hdr{padding:0 16px;height:52px}
   .hdr-left h1{font-size:13px}
-  .btn{padding:6px 10px;font-size:11px}
-  .main{padding:16px}
+  .hdr-right .btn{padding:6px 10px;font-size:11px}
+  .hdr-right .btn .icon{display:none}
+  .main{padding:14px 16px}
+  .kpi{padding:14px 16px}
   .kpi-val{font-size:26px}
-  table{font-size:12px}
-  th,td{padding:8px 10px}
-  .toolbar{gap:6px}
-  .srch{min-width:140px;font-size:12px}
+  .kpi-sub{font-size:10.5px}
+  table{font-size:12.5px}
+  th,td{padding:9px 10px}
+  .toolbar{flex-wrap:nowrap}
+  .srch{min-width:0;font-size:13px}
+  .fsel{font-size:12px;padding:8px 8px}
   .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .tbl-wrap table{min-width:480px}
+  .tbl-wrap table{min-width:520px}
+  .section-hdr{flex-direction:column;align-items:flex-start;gap:6px}
+  .dup-banner{width:100%}
 }
 </style>
 </head>
@@ -532,7 +556,9 @@ function boot(){
       dateInscription:r.d||'',
     });
   });
-  render();
+  // Show skeleton while waiting for API — fallback to baked-in if no server
+  if(location.protocol!=='file:') renderSkeleton();
+  else render();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -565,6 +591,30 @@ function canalBadge(canalId, isAuto=false){
   if(canalId==='unassigned') return `<span style="font-size:11px;color:#94a3b8;font-style:italic">—</span>`;
   const auto=isAuto?` <span class="badge badge-auto">auto</span>`:'';
   return `<span class="canal-badge" style="background:${c.bg}22;color:${c.bg==='#e2e8f0'?c.fg:c.fg};border:1px solid ${c.bg}44"><span style="width:12px;height:12px;border-radius:50%;background:${c.bg};display:inline-block;flex-shrink:0"></span>${c.label}</span>${auto}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SKELETON
+// ═══════════════════════════════════════════════════════════════
+function renderSkeleton(){
+  // KPI skeletons
+  document.getElementById('kpis').innerHTML=Array(4).fill(0).map((_,i)=>`
+    <div class="kpi-skel">
+      <div class="skel skel-lbl" style="width:${['55%','45%','60%','50%'][i]}"></div>
+      <div class="skel skel-val" style="width:${['40%','35%','45%','38%'][i]}"></div>
+      <div class="skel skel-sub" style="width:${['75%','65%','80%','70%'][i]}"></div>
+    </div>`).join('');
+  // Table skeleton
+  document.getElementById('tbl-p').innerHTML=`
+    <div class="skel-tbl">
+      <div class="skel-thead">
+        ${['30%','15%','30%','8%','12%'].map(w=>`<div class="skel skel-th" style="width:${w}"></div>`).join('')}
+      </div>
+      ${Array(10).fill(0).map((_,i)=>`
+      <div class="skel-row" style="opacity:${1-i*0.07}">
+        ${['28%','14%','28%','7%','11%'].map(w=>`<div class="skel skel-cell" style="width:${w}"></div>`).join('')}
+      </div>`).join('')}
+    </div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1079,6 +1129,7 @@ boot();
     });
 
     window._lastSync=data.lastSync;
+    window._dataLoaded=true;
     render();
     updateSyncBadge(data.lastSync);
     if(added>0) console.log(`[autoSync] +${added} nouveaux @ ${data.lastSync}`);
@@ -1088,11 +1139,14 @@ boot();
     fetch('/api/participants')
       .then(r=>r.ok?r.json():Promise.reject(r.status))
       .then(applyServerData)
-      .catch(()=>{});
+      .catch(()=>{
+        // API unreachable — show baked-in data as fallback (no shimmer stuck)
+        if(!window._dataLoaded) { render(); }
+      });
   }
 
   if(location.protocol!=='file:'){
-    poll(); // immediate first fetch — replaces baked-in data
+    poll(); // immediate first fetch — replaces skeleton
     setInterval(poll, POLL_MS);
     setInterval(()=>updateSyncBadge(window._lastSync), 30000); // refresh badge text
   }

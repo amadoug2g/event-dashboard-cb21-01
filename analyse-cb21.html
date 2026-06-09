@@ -586,11 +586,15 @@ function renderDash(){
   const noS=ST.attendees.filter(p=>sLabel(p.structureCanonId)==='(sans structure)').length;
 
   const cb21Count=cb21Attendees().length;
+  const seenNames=new Set();ST.attendees.forEach(p=>seenNames.add(p.nom+'|'+p.prenom.toLowerCase()));
+  const realUnique=seenNames.size;
+  const dupPairs=total-realUnique;
   document.getElementById('kpis').innerHTML=`
     <div class="kpi">
       <div class="kpi-lbl">Inscrits</div>
       <div class="kpi-val">${total}</div>
-      <div class="kpi-sub" id="kpi-sync-sub">Mise à jour en cours…</div>
+      ${dupPairs>0?`<div class="kpi-sub" style="color:#c2410c;font-weight:600">${realUnique} uniques · ${dupPairs} en doublon</div>`:''}
+      <div class="kpi-sub" id="kpi-sync-sub" style="margin-top:${dupPairs>0?'2px':'4px'}">Mise à jour en cours…</div>
     </div>
     <div class="kpi">
       <div class="kpi-lbl">Structures</div>
@@ -666,7 +670,7 @@ function renderP(){
       }).join('')}</tbody>
     </table>
     </div>
-    <div class="tbl-footer">${rows.length} résultat${rows.length!==1?'s':''} · ${ST.attendees.length} inscrits au total</div>`;
+    <div class="tbl-footer">${(()=>{const sn=new Set();ST.attendees.forEach(p=>sn.add(p.nom+'|'+p.prenom.toLowerCase()));const u=sn.size,d=ST.attendees.length-u;return`${rows.length} résultat${rows.length!==1?'s':''} · ${ST.attendees.length} inscrits${d>0?` · <span style="color:#c2410c">${u} uniques, ${d} en doublon</span>`:''}`;})()} </div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════

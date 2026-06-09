@@ -935,6 +935,7 @@ function bulkSetCanal(canalId){
 
 function renderFAB(){
   const fab=document.getElementById('fab');
+  if(!fab) return;
   if(ST.sel.size===0){fab.classList.add('hidden');return;}
   fab.classList.remove('hidden');
   document.getElementById('fab-cnt').textContent=ST.sel.size;

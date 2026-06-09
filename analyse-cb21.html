@@ -215,7 +215,6 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
       <option value="all">Tous</option>
       <option value="yes">Résidents CB21</option>
     </select>
-    <button class="btn light" onclick="openAddP()">+ Participant</button>
   </div>
   <div id="tbl-p"></div>
 </div>
@@ -228,8 +227,6 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
       <option value="all">Toutes</option>
       <option value="yes">CB21 uniquement</option>
     </select>
-    <button class="btn light" onclick="openAddS()">+ Structure</button>
-    <button class="btn light" onclick="openMerge()">Fusionner…</button>
   </div>
   <div id="tbl-s"></div>
 </div>
@@ -247,12 +244,6 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
 
 </div><!-- .main -->
 
-<!-- FLOATING ATTRIBUTION BAR -->
-<div class="fab hidden" id="fab">
-  <span id="fab-cnt"></span> sélectionné(s) → attribuer à :
-  <div class="fab-pills" id="fab-pills"></div>
-  <button class="btn sm" style="background:#334155;border-color:#475569" onclick="clearSel()">✕</button>
-</div>
 
 <!-- ═══════════════════ MODALS ═══════════════════ -->
 
@@ -811,12 +802,12 @@ function renderS(){
     const cnt=cm.get(s.id)||0;
     const expanded=ST.expandedStructs.has(s.id);
     const participants=ST.attendees.filter(p=>p.structureCanonId===s.id);
-    const expandHtml=expanded?`<tr class="expand-row" id="exp-${s.id}"><td colspan="6">
+    const expandHtml=expanded?`<tr class="expand-row" id="exp-${s.id}"><td colspan="3">
       <div style="padding:4px 0">
         ${participants.length===0?'<span style="color:#94a3b8;font-size:12px">Aucun participant</span>':
           participants.map(p=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f1f5f9">
             <span style="font-size:13px;min-width:200px"><strong>${p.nom}</strong> ${p.prenom}</span>
-            <div class="pill-row" style="--pill:22px">${pillRowHtml(p.canal,p.id,22)}</div>
+            ${canalBadge(p.canal,p.canalAuto)}
           </div>`).join('')}
       </div>
     </td></tr>`:'';
@@ -829,26 +820,12 @@ function renderS(){
       </td>
       <td style="text-align:center"><strong>${cnt}</strong></td>
       <td>${s.isCB21?'<span class="badge badge-cb21">CB21</span>':''}</td>
-      <td>
-        <div class="pill-row" style="--pill:22px">
-          ${CANALS.map(c=>`<div class="pill-wrap"><div class="pill ${c.id}${s.canalDefault===c.id?' active':''}" style="--pill:22px" onclick="setStructCanal('${s.id}','${c.id}')" title="${c.label}">${c.abbr}</div><div class="tip">${c.label}</div></div>`).join('')}
-          ${s.canalDefault?`<button onclick="setStructCanal('${s.id}',null)" style="background:none;border:none;cursor:pointer;font-size:11px;color:#94a3b8;padding:0 4px" title="Effacer règle">✕</button>`:''}
-        </div>
-        ${s.canalDefault?`<div style="font-size:10px;color:#94a3b8;margin-top:2px">Règle : tous → ${CANAL_MAP[s.canalDefault]?.label}</div>`:''}
-      </td>
-      <td style="display:flex;gap:4px">
-        <button class="btn sm light" onclick="openMergeFrom('${s.id}')">Fusionner</button>
-        <button class="btn sm light" onclick="renameS('${s.id}')">Renommer</button>
-        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:12px;color:var(--muted)">
-          <input type="checkbox" ${s.isCB21?'checked':''} onchange="togCB21('${s.id}',this.checked)"> CB21
-        </label>
-      </td>
     </tr>${expandHtml}`;
   }).join('');
 
   document.getElementById('tbl-s').innerHTML=`
     <table>
-      <thead><tr><th>Structure</th><th style="text-align:center">Participants</th><th>CB21</th><th>Invité par (règle auto)</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Structure</th><th style="text-align:center">Participants</th><th>CB21</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }

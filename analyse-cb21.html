@@ -136,7 +136,26 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
 .empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
 
 /* RESPONSIVE */
-@media(max-width:700px){.kpis{grid-template-columns:1fr 1fr}.card-row{grid-template-columns:1fr}}
+@media(max-width:700px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .card-row{grid-template-columns:1fr}
+  .hdr{padding:10px 14px;gap:8px}
+  .hdr-left h1{font-size:13px}
+  .hdr-left .sub{font-size:10px}
+  .btn{padding:5px 10px;font-size:11px}
+  .nav{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .nb{padding:10px 12px;font-size:12px;white-space:nowrap}
+  .main{padding:12px}
+  .kpi-val{font-size:22px}
+  table{font-size:12px}
+  th,td{padding:6px 8px}
+  .toolbar{gap:6px}
+  .srch{min-width:120px;font-size:12px}
+  /* Table scroll on mobile */
+  #tbl-p,#tbl-s{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #tbl-p table,#tbl-s table{min-width:400px}
+  .bar-label{width:100px}
+}
 </style>
 </head>
 <body>
@@ -144,10 +163,11 @@ tr.expand-row td{background:#f8fafc;padding:8px 16px}
 <div class="hdr">
   <div class="hdr-left">
     <h1>Les Grandes Conversations &nbsp;·&nbsp; 11 juin 2026</h1>
-    <div class="sub">Tour CB21, La Défense &nbsp;·&nbsp; Mise à jour <span id="last-sync-badge">chargement…</span></div>
+    <div class="sub">Tour CB21, La Défense &nbsp;·&nbsp; <span id="last-sync-badge">chargement…</span></div>
   </div>
   <div class="hdr-right">
-    <button class="btn" onclick="exportCSV()">↓ CSV participants</button>
+    <button class="btn" id="btn-refresh" onclick="manualRefresh()" title="Rafraîchir maintenant">⟳</button>
+    <button class="btn" onclick="exportCSV()">↓ CSV</button>
   </div>
 </div>
 
@@ -592,28 +612,23 @@ function boot(){
     ST.structures.get(sid).canalDefault=canalId;
   });
 
-  // In server mode, serverAutoSync does the initial fetch and render.
-  // Baked-in data is only used as fallback (file:// mode).
-  if(location.protocol==='file:'){
-    RAW.forEach(r=>{
-      const sid=resolveStruct(r.s||'');
-      const stDef=ST.structures.get(sid)?.canalDefault||null;
-      ST.attendees.push({
-        id:'p'+(++_seq),
-        nom:r.n||'',prenom:r.p||'',
-        structureRaw:r.s||'',
-        structureCanonId:sid,
-        canal:stDef||'autre',
-        canalAuto:!!stDef,
-        origin:'import',
-        dateInscription:'',
-      });
+  // Load baked-in data (base de référence avec structures)
+  RAW.forEach(r=>{
+    const sid=resolveStruct(r.s||'');
+    const isCovivioStruct=isCB21(sid);
+    const stDef=isCovivioStruct?'covivio':(ST.structures.get(sid)?.canalDefault||'autre');
+    ST.attendees.push({
+      id:'p'+(++_seq),
+      nom:r.n||'',prenom:r.p||'',
+      structureRaw:r.s||'',
+      structureCanonId:sid,
+      canal:stDef,
+      canalAuto:!!isCovivioStruct,
+      origin:'import',
+      dateInscription:r.d||'',
     });
-    render();
-  } else {
-    // Show loading state while first fetch completes
-    document.getElementById('kpis').innerHTML='<div style="padding:20px;color:#94a3b8;font-size:13px">Chargement des données…</div>';
-  }
+  });
+  render();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1156,38 +1171,55 @@ boot();
     if(!lastSync) return;
     const d=new Date(lastSync);
     const diffMin=Math.round((Date.now()-d.getTime())/60000);
-    const label=diffMin<=1?'à l\'instant':`il y a ${diffMin} min`;
-    if(badge) badge.textContent=label;
-    if(kpiSub) kpiSub.textContent='Mis à jour '+label;
+    const relLabel=diffMin<=1?'à l\'instant':`il y a ${diffMin} min`;
+    const timeLabel=d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const fullLabel=`${relLabel} (${timeLabel})`;
+    if(badge) badge.textContent=fullLabel;
+    if(kpiSub) kpiSub.textContent='Mis à jour '+fullLabel;
+  }
+
+  function manualRefresh(){
+    const btn=document.getElementById('btn-refresh');
+    if(btn){btn.textContent='⟳';btn.disabled=true;btn.style.opacity='.5';}
+    fetch('/api/participants')
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(data=>{applyServerData(data);if(btn){btn.textContent='⟳';btn.disabled=false;btn.style.opacity='1';}})
+      .catch(()=>{if(btn){btn.disabled=false;btn.style.opacity='1';}});
   }
 
   function applyServerData(data){
     if(!data||!Array.isArray(data.participants)||!data.participants.length) return;
 
-    // Full replace — always use live server data
-    ST.attendees=[];
-
+    // Merge: add only new participants not already in baked-in list
+    let added=0;
     data.participants.forEach(p=>{
       const nom=(p.owner?.last_name||p.last_name||p.nom||'').toUpperCase().trim();
       const prenom=(p.owner?.first_name||p.first_name||p.prenom||'').trim();
-      const structure=(p.owner?.custom_field||p.organisation||p.structureRaw||'').trim();
       const dateInscription=p.create_date||'';
       if(!nom) return;
-      const sid=resolveStruct(structure);
-      const isCovivioStruct=isCB21(sid);
-      const canal=isCovivioStruct?'covivio':(ST.structures.get(sid)?.canalDefault||'autre');
-      ST.attendees.push({
-        id:'p'+(++_seq),nom,prenom,
-        structureRaw:structure,structureCanonId:sid,
-        canal,canalAuto:true,origin:'weez',
-        dateInscription,
-      });
+      const exists=ST.attendees.some(a=>
+        a.nom===nom && a.prenom.toLowerCase()===prenom.toLowerCase()
+      );
+      if(!exists){
+        const sid=resolveStruct('');
+        ST.attendees.push({
+          id:'p'+(++_seq),nom,prenom,
+          structureRaw:'',structureCanonId:sid,
+          canal:'autre',canalAuto:false,origin:'weez',
+          dateInscription,
+        });
+        added++;
+      } else {
+        // Update dateInscription if missing
+        const existing=ST.attendees.find(a=>a.nom===nom&&a.prenom.toLowerCase()===prenom.toLowerCase());
+        if(existing&&!existing.dateInscription&&dateInscription) existing.dateInscription=dateInscription;
+      }
     });
 
     window._lastSync=data.lastSync;
     render();
     updateSyncBadge(data.lastSync);
-    console.log(`[autoSync] ${ST.attendees.length} participants @ ${data.lastSync}`);
+    if(added>0) console.log(`[autoSync] +${added} nouveaux @ ${data.lastSync}`);
   }
 
   function poll(){
